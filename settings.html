@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings — Echoo</title>
+  <link rel="icon" type="image/png" href="https://i.ibb.co/L50H0sD/eagle-logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .sidebar { width: 72px; transition: width 0.25s ease-in-out; }
+    .sidebar:hover { width: 240px; }
+    .sidebar:hover .nav-text { display: inline-block; }
+    .nav-text { display: none; }
+  </style>
+</head>
+<body class="bg-black text-slate-100 min-h-screen flex">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar fixed top-0 left-0 h-screen bg-black border-r border-slate-800 flex flex-col justify-between py-6 px-3 z-50">
+    <nav class="space-y-4">
+      <a href="index.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900"><i class="fa-solid fa-house text-xl w-6 text-center"></i><span class="nav-text text-sm">Home</span></a>
+      <a href="settings.html" class="flex items-center space-x-4 p-3 rounded-xl bg-slate-900 text-cyan-400"><i class="fa-solid fa-gear text-xl w-6 text-center"></i><span class="nav-text text-sm">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="pl-24 flex-1 max-w-2xl mx-auto py-10 px-4 space-y-8">
+    <h1 class="text-xl font-bold border-b border-slate-800 pb-4">Account Settings</h1>
+
+    <!-- ADD / CHANGE GMAIL -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+      <h2 class="text-sm font-bold text-cyan-400"><i class="fa-regular fa-envelope"></i> Email Address</h2>
+      <div class="space-y-2">
+        <input type="email" value="oron.broh@gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs focus:outline-none">
+        <button class="bg-cyan-500 text-black font-bold px-4 py-1.5 rounded-xl text-xs">Update Email</button>
+      </div>
+    </div>
+
+    <!-- CHANGE PASSWORD -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+      <h2 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-lock"></i> Security & Password</h2>
+      <div class="space-y-3">
+        <input type="password" placeholder="Current Password" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs focus:outline-none">
+        <input type="password" placeholder="New Password" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs focus:outline-none">
+        <button class="bg-cyan-500 text-black font-bold px-4 py-1.5 rounded-xl text-xs">Change Password</button>
+      </div>
+    </div>
+
+    <!-- ACTIVE LOGIN SESSIONS -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+      <h2 class="text-sm font-bold text-cyan-400"><i class="fa-solid fa-laptop"></i> Active Logins & Devices</h2>
+      <div class="space-y-3 text-xs">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div>
+            <p class="font-bold">Windows Laptop (Asus) — Active Now</p>
+            <p class="text-[10px] text-slate-400">Chrome Browser • Dhaka, Bangladesh</p>
+          </div>
+          <span class="text-emerald-400 text-[10px] font-bold">Online</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-bold">iPhone 7 Plus</p>
+            <p class="text-[10px] text-slate-400">Logged in 2 days ago</p>
+          </div>
+          <button class="text-red-400 text-[10px] hover:underline">Revoke Session</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

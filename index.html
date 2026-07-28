@@ -54,19 +54,14 @@
       document.getElementById('sideUsername').innerText = '@' + (data.username || 'username');
 
       const avatarContainer = document.getElementById('sideAvatarContainer');
-      const postAvatarContainer = document.getElementById('postAvatarContainer');
-
       const avatarHTML = data.photoURL 
-        ? `<img src="${data.photoURL}" class="w-11 h-11 rounded-full object-cover border border-yellow-400">`
-        : `<div class="w-11 h-11 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-sm">${(data.fullName || 'U').substring(0, 2).toUpperCase()}</div>`;
-
-      avatarContainer.innerHTML = avatarHTML;
-      postAvatarContainer.innerHTML = data.photoURL 
         ? `<img src="${data.photoURL}" class="w-10 h-10 rounded-full object-cover border border-yellow-400">`
         : `<div class="w-10 h-10 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs">${(data.fullName || 'U').substring(0, 2).toUpperCase()}</div>`;
+
+      avatarContainer.innerHTML = avatarHTML;
     }
 
-    // REAL SUGGESTIONS WITH FOLLOW BUTTON & PROFILE LINKS
+    // SUGGESTIONS
     async function loadRealSuggestions() {
       const container = document.getElementById('suggestionsContainer');
       container.innerHTML = "";
@@ -74,7 +69,6 @@
       try {
         const usersSnap = await getDocs(query(collection(db, "users"), limit(10)));
         let foundOthers = false;
-
         const myFollowing = window.currentUserData.following || [];
 
         usersSnap.forEach((docSnap) => {
@@ -114,11 +108,10 @@
       }
     }
 
-    // FOLLOW / UNFOLLOW SYSTEM
+    // FOLLOW / UNFOLLOW
     window.toggleFollow = async (targetUid, btn) => {
       const myRef = doc(db, "users", window.currentUser.uid);
       const targetRef = doc(db, "users", targetUid);
-
       const isFollowing = window.currentUserData.following && window.currentUserData.following.includes(targetUid);
 
       if (isFollowing) {
@@ -137,7 +130,7 @@
       }
     };
 
-    // REAL TIME STORIES LOADER
+    // STORIES
     function loadStories() {
       const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
@@ -146,9 +139,9 @@
 
         snapshot.forEach((docSnap) => {
           const story = docSnap.data();
-          const storyCircle = document.createElement('a');
-          storyCircle.href = `profile.html?uid=${story.authorUid}`;
+          const storyCircle = document.createElement('div');
           storyCircle.className = "flex-shrink-0 text-center cursor-pointer group";
+          storyCircle.onclick = () => window.openStoryModal(story.media, story.authorName);
           
           storyCircle.innerHTML = `
             <div class="w-16 h-16 rounded-full border-2 border-yellow-400 p-0.5 overflow-hidden group-hover:scale-105 transition">
@@ -161,7 +154,16 @@
       });
     }
 
-    // PUBLISH STORY TO FIRESTORE
+    window.openStoryModal = (mediaUrl, authorName) => {
+      document.getElementById('storyModalImage').src = mediaUrl;
+      document.getElementById('storyModalAuthor').innerText = authorName;
+      document.getElementById('storyModal').classList.remove('hidden');
+    };
+
+    window.closeStoryModal = () => {
+      document.getElementById('storyModal').classList.add('hidden');
+    };
+
     window.uploadStoryFile = async (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -175,9 +177,9 @@
             authorName: window.currentUserData.fullName || "User",
             createdAt: serverTimestamp()
           });
-          alert("Story Uploaded Successfully!");
+          alert("Story Uploaded!");
         } catch (err) {
-          alert("Error uploading story: " + err.message);
+          alert("Error: " + err.message);
         }
       };
       reader.readAsDataURL(file);
@@ -223,27 +225,116 @@
             </div>
             ${post.text ? `<p class="text-xs text-slate-200 leading-relaxed">${post.text}</p>` : ''}
             ${mediaHTML}
+            
             <div class="flex items-center justify-between pt-2 border-t border-neutral-800 text-neutral-400 text-sm">
               <button onclick="window.toggleLikeFirebase('${postId}', ${isLiked})" class="hover:text-red-500 flex items-center space-x-1.5 transition ${isLiked ? 'text-red-500 font-bold' : ''}">
                 <i class="${isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i>
                 <span class="text-xs">${likeCount}</span>
               </button>
-              <button class="hover:text-yellow-400 flex items-center space-x-1.5 transition">
+              <button onclick="window.toggleCommentBox('${postId}')" class="hover:text-yellow-400 flex items-center space-x-1.5 transition">
                 <i class="fa-regular fa-comment"></i>
-                <span class="text-xs">0</span>
+                <span class="text-xs" id="commentCount-${postId}">0</span>
               </button>
               <button onclick="window.copyPostLink()" class="hover:text-yellow-400 transition flex items-center space-x-1 text-xs">
                 <i class="fa-regular fa-paper-plane"></i>
                 <span>Share</span>
               </button>
             </div>
+
+            <!-- COMMENTS CONTAINER -->
+            <div id="commentSection-${postId}" class="hidden pt-3 border-t border-neutral-800/80 space-y-3">
+              <div id="commentsList-${postId}" class="space-y-2 max-h-48 overflow-y-auto"></div>
+              
+              <div id="gifBox-${postId}" class="hidden grid grid-cols-5 gap-1.5 p-2 bg-neutral-900 rounded-xl border border-neutral-800">
+                <img src="https://media.giphy.com/media/l0AMJzLgI2U1eA1gA/giphy.gif" onclick="window.sendGifComment('${postId}', this.src)" class="w-full h-12 object-cover rounded cursor-pointer hover:scale-105 transition">
+                <img src="https://media.giphy.com/media/3o7TKs60GAI8AORM5o/giphy.gif" onclick="window.sendGifComment('${postId}', this.src)" class="w-full h-12 object-cover rounded cursor-pointer hover:scale-105 transition">
+                <img src="https://media.giphy.com/media/26UvR1I7C351s8W1G/giphy.gif" onclick="window.sendGifComment('${postId}', this.src)" class="w-full h-12 object-cover rounded cursor-pointer hover:scale-105 transition">
+                <img src="https://media.giphy.com/media/dzaUX7CAG0Ihi/giphy.gif" onclick="window.sendGifComment('${postId}', this.src)" class="w-full h-12 object-cover rounded cursor-pointer hover:scale-105 transition">
+                <img src="https://media.giphy.com/media/13CoXDiaCcCoyk/giphy.gif" onclick="window.sendGifComment('${postId}', this.src)" class="w-full h-12 object-cover rounded cursor-pointer hover:scale-105 transition">
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <button onclick="window.toggleGifPicker('${postId}')" class="text-xs font-bold bg-neutral-800 text-yellow-400 px-2.5 py-1.5 rounded-xl border border-neutral-700 hover:bg-neutral-700">GIF</button>
+                <input type="text" id="commentInput-${postId}" placeholder="Write a comment..." class="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-yellow-400">
+                <button onclick="window.sendTextComment('${postId}')" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-3 py-1.5 rounded-xl text-xs">Send</button>
+              </div>
+            </div>
           `;
           feed.appendChild(postCard);
+          window.listenToComments(postId);
         });
       });
     }
 
-    // CREATE POST
+    // COMMENTS FUNCTIONS
+    window.toggleCommentBox = (postId) => {
+      document.getElementById(`commentSection-${postId}`).classList.toggle('hidden');
+    };
+
+    window.toggleGifPicker = (postId) => {
+      document.getElementById(`gifBox-${postId}`).classList.toggle('hidden');
+    };
+
+    window.listenToComments = (postId) => {
+      const commentsRef = collection(db, "posts", postId, "comments");
+      const q = query(commentsRef, orderBy("createdAt", "asc"));
+
+      onSnapshot(q, (snapshot) => {
+        const list = document.getElementById(`commentsList-${postId}`);
+        const countSpan = document.getElementById(`commentCount-${postId}`);
+        if (!list) return;
+
+        list.innerHTML = "";
+        countSpan.innerText = snapshot.size;
+
+        snapshot.forEach((docSnap) => {
+          const c = docSnap.data();
+          const item = document.createElement('div');
+          item.className = "bg-neutral-900 p-2 rounded-xl text-xs space-y-1 border border-neutral-800/60";
+          item.innerHTML = `
+            <span class="font-bold text-yellow-400">${c.authorName}</span>
+            ${c.text ? `<p class="text-slate-200">${c.text}</p>` : ''}
+            ${c.gif ? `<img src="${c.gif}" class="w-32 h-20 object-cover rounded-lg border border-neutral-700 mt-1">` : ''}
+          `;
+          list.appendChild(item);
+        });
+      });
+    };
+
+    window.sendTextComment = async (postId) => {
+      const input = document.getElementById(`commentInput-${postId}`);
+      const val = input.value.trim();
+      if (!val) return;
+
+      await addDoc(collection(db, "posts", postId, "comments"), {
+        text: val,
+        authorUid: window.currentUser.uid,
+        authorName: window.currentUserData.fullName || "User",
+        createdAt: serverTimestamp()
+      });
+      input.value = "";
+    };
+
+    window.sendGifComment = async (postId, gifUrl) => {
+      await addDoc(collection(db, "posts", postId, "comments"), {
+        gif: gifUrl,
+        authorUid: window.currentUser.uid,
+        authorName: window.currentUserData.fullName || "User",
+        createdAt: serverTimestamp()
+      });
+      document.getElementById(`gifBox-${postId}`).classList.add('hidden');
+    };
+
+    // CREATE POST MODAL FUNCTIONS
+    window.openCreatePostModal = () => {
+      document.getElementById('createPostModal').classList.remove('hidden');
+    };
+
+    window.closeCreatePostModal = () => {
+      document.getElementById('createPostModal').classList.add('hidden');
+      window.removeMedia();
+    };
+
     window.publishPost = async () => {
       const text = document.getElementById('postInputText').value.trim();
       if (!text && !window.selectedMediaBase64) {
@@ -265,7 +356,7 @@
         });
 
         document.getElementById('postInputText').value = "";
-        window.removeMedia();
+        window.closeCreatePostModal();
       } catch (err) {
         alert("Error publishing post: " + err.message);
       }
@@ -288,68 +379,77 @@
       navigator.clipboard.writeText(window.location.href);
       alert("Link copied!");
     };
+
+    window.toggleChatPopup = () => {
+      document.getElementById('chatDrawerPopup').classList.toggle('hidden');
+    };
   </script>
 </head>
-<body class="bg-black text-slate-100 min-h-screen flex font-sans select-none relative">
+<body class="bg-black text-slate-100 min-h-screen flex font-sans select-none relative overflow-x-hidden">
 
-  <!-- LEFT NAVIGATION SIDEBAR -->
-  <aside class="w-64 fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex flex-col justify-between p-4 z-40">
+  <!-- AUTO-EXPANDING SIDEBAR (Hover to show text) -->
+  <aside class="w-16 hover:w-60 transition-all duration-300 ease-in-out fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex flex-col justify-between p-3 z-40 group overflow-hidden">
     <div class="space-y-6">
-      <a href="index.html" class="flex items-center space-x-3 px-2 py-1">
-        <img src="logo.png" alt="PulseIn Logo" class="w-9 h-9 object-contain" onerror="this.src='https://via.placeholder.com/40/yellow/black?text=P'">
-        <span class="text-xl font-bold tracking-wider text-yellow-400">PulseIn</span>
+      <a href="index.html" class="flex items-center space-x-4 px-1 py-1">
+        <img src="logo.png" alt="PulseIn Logo" class="w-8 h-8 object-contain flex-shrink-0" onerror="this.src='https://via.placeholder.com/40/yellow/black?text=P'">
+        <span class="text-lg font-bold tracking-wider text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">PulseIn</span>
       </a>
 
       <nav class="space-y-1">
-        <a href="index.html" class="flex items-center space-x-4 p-3 rounded-2xl bg-neutral-900 text-yellow-400 font-bold">
-          <i class="fa-solid fa-house text-lg w-6 text-center"></i>
-          <span class="text-sm">Home</span>
+        <a href="index.html" class="flex items-center space-x-4 p-2.5 rounded-2xl bg-neutral-900 text-yellow-400 font-bold">
+          <i class="fa-solid fa-house text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Home</span>
         </a>
-        <a href="search.html" class="flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
-          <i class="fa-solid fa-magnifying-glass text-lg w-6 text-center"></i>
-          <span class="text-sm">Search</span>
+        <a href="search.html" class="flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
+          <i class="fa-solid fa-magnifying-glass text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Search</span>
         </a>
-        <a href="reels.html" class="flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
-          <i class="fa-solid fa-clapperboard text-lg w-6 text-center"></i>
-          <span class="text-sm">Reels</span>
+        <a href="reels.html" class="flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
+          <i class="fa-solid fa-clapperboard text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Reels</span>
         </a>
-        <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
-          <i class="fa-regular fa-paper-plane text-lg w-6 text-center"></i>
-          <span class="text-sm">Messages</span>
+        <a href="messages.html" class="flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
+          <i class="fa-regular fa-paper-plane text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Messages</span>
         </a>
-        <a href="notifications.html" class="flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
-          <i class="fa-regular fa-heart text-lg w-6 text-center"></i>
-          <span class="text-sm">Notifications</span>
+        <a href="notifications.html" class="flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
+          <i class="fa-regular fa-heart text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Notifications</span>
         </a>
-        <a href="dashboard.html" class="flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
-          <i class="fa-solid fa-chart-line text-lg w-6 text-center"></i>
-          <span class="text-sm">Dashboard</span>
+        <a href="dashboard.html" class="flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
+          <i class="fa-solid fa-chart-line text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Dashboard</span>
         </a>
-        <a href="settings.html" class="flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
-          <i class="fa-solid fa-gear text-lg w-6 text-center"></i>
-          <span class="text-sm">Settings</span>
+        <!-- CREATE POST BUTTON IN SIDEBAR -->
+        <button onclick="window.openCreatePostModal()" class="w-full flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-yellow-400 transition">
+          <i class="fa-regular fa-square-plus text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Create Post</span>
+        </button>
+        <a href="settings.html" class="flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
+          <i class="fa-solid fa-gear text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Settings</span>
         </a>
-        <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
-          <i class="fa-regular fa-user text-lg w-6 text-center"></i>
-          <span class="text-sm">Profile</span>
+        <a href="profile.html" class="flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
+          <i class="fa-regular fa-user text-lg w-6 text-center flex-shrink-0"></i>
+          <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Profile</span>
         </a>
       </nav>
     </div>
 
     <div class="border-t border-neutral-800 pt-3">
-      <button onclick="userLogout()" class="w-full flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-red-500 font-semibold transition">
-        <i class="fa-solid fa-right-from-bracket text-lg w-6 text-center"></i>
-        <span class="text-sm">Log Out</span>
+      <button onclick="userLogout()" class="w-full flex items-center space-x-4 p-2.5 rounded-2xl hover:bg-neutral-900 text-red-500 font-semibold transition">
+        <i class="fa-solid fa-right-from-bracket text-lg w-6 text-center flex-shrink-0"></i>
+        <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Log Out</span>
       </button>
     </div>
   </aside>
 
-  <!-- MAIN CONTAINER -->
-  <div class="pl-64 flex-1 flex justify-center max-w-7xl mx-auto px-6 py-6 gap-8">
+  <!-- MAIN CONTAINER (Padded for collapsed sidebar) -->
+  <div class="pl-20 flex-1 flex justify-center max-w-7xl mx-auto px-6 py-6 gap-8">
 
     <main class="w-full max-w-lg space-y-6">
 
-      <!-- REAL-TIME STORIES ROW -->
+      <!-- STORIES ROW -->
       <div class="flex space-x-4 overflow-x-auto pb-2 border-b border-neutral-800 scrollbar-none">
         <label class="flex-shrink-0 text-center cursor-pointer group">
           <div class="w-16 h-16 rounded-full border-2 border-dashed border-yellow-400 p-0.5 flex items-center justify-center bg-neutral-900 group-hover:scale-105 transition">
@@ -362,43 +462,16 @@
         <div id="storiesContainer" class="flex space-x-4"></div>
       </div>
 
-      <!-- CREATE POST BOX (WITH 'POST' TEXT ON BUTTON) -->
-      <div class="bg-[#121212] border border-neutral-800 rounded-2xl p-4 space-y-3">
-        <div class="flex items-center space-x-3">
-          <a href="profile.html" id="postAvatarContainer" class="flex-shrink-0 cursor-pointer">
-            <div class="w-10 h-10 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs">--</div>
-          </a>
-          <input type="text" id="postInputText" placeholder="What's on your mind?" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-yellow-400 text-white">
-        </div>
-
-        <div id="mediaPreviewContainer" class="hidden relative rounded-xl overflow-hidden max-h-60 border border-neutral-800">
-          <div id="mediaPreviewHolder"></div>
-          <button onclick="removeMedia()" class="absolute top-2 right-2 bg-black/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-
-        <div class="flex items-center justify-between pt-2 border-t border-neutral-800/80">
-          <label class="cursor-pointer hover:text-yellow-400 flex items-center space-x-1.5 text-xs text-slate-400">
-            <i class="fa-regular fa-image text-base text-yellow-400"></i>
-            <span>Photo / Video</span>
-            <input type="file" id="postMediaInput" accept="image/*,video/*" onchange="previewMedia(event)" class="hidden">
-          </label>
-          <!-- 'POST' BUTTON TEXT CLEARLY VISIBLE -->
-          <button onclick="publishPost()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-5 py-1.5 rounded-xl text-xs transition">
-            Post
-          </button>
-        </div>
-      </div>
-
       <!-- DYNAMIC FEED POSTS -->
       <div id="feedPostsContainer" class="space-y-6"></div>
     </main>
 
-    <!-- RIGHT PANEL (SUGGESTIONS WITH FOLLOW BUTTON) -->
+    <!-- RIGHT PANEL -->
     <aside class="hidden lg:block w-80 space-y-6 pt-2">
       <div class="flex items-center justify-between">
         <a href="profile.html" class="flex items-center space-x-3 group cursor-pointer">
           <div id="sideAvatarContainer">
-            <div class="w-11 h-11 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-sm">--</div>
+            <div class="w-10 h-10 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs">--</div>
           </div>
           <div>
             <p id="sideProfileName" class="text-xs font-bold text-white group-hover:underline">Loading...</p>
@@ -416,6 +489,61 @@
 
   </div>
 
+  <!-- CREATE POST MODAL (Opens on 'Create Post' click) -->
+  <div id="createPostModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#121212] border border-neutral-800 rounded-2xl w-full max-w-md p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-neutral-800 pb-3">
+        <h3 class="text-sm font-bold text-yellow-400">Create New Post</h3>
+        <button onclick="window.closeCreatePostModal()" class="text-neutral-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+      
+      <textarea id="postInputText" rows="3" placeholder="What's on your mind?" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-xs focus:outline-none focus:border-yellow-400 text-white resize-none"></textarea>
+
+      <div id="mediaPreviewContainer" class="hidden relative rounded-xl overflow-hidden max-h-52 border border-neutral-800">
+        <div id="mediaPreviewHolder"></div>
+        <button onclick="removeMedia()" class="absolute top-2 right-2 bg-black/80 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-neutral-800/80">
+        <label class="cursor-pointer hover:text-yellow-400 flex items-center space-x-1.5 text-xs text-slate-400">
+          <i class="fa-regular fa-image text-base text-yellow-400"></i>
+          <span>Photo / Video</span>
+          <input type="file" id="postMediaInput" accept="image/*,video/*" onchange="previewMedia(event)" class="hidden">
+        </label>
+        <button onclick="publishPost()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-5 py-1.5 rounded-xl text-xs transition">Post</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY VIEWER MODAL -->
+  <div id="storyModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+    <div class="relative w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden p-4 space-y-3">
+      <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+        <span id="storyModalAuthor" class="text-xs font-bold text-yellow-400">Story</span>
+        <button onclick="window.closeStoryModal()" class="text-white hover:text-red-500"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <img id="storyModalImage" class="w-full max-h-96 object-cover rounded-2xl">
+    </div>
+  </div>
+
+  <!-- FLOATING REALTIME MESSAGES DRAWER -->
+  <div onclick="window.toggleChatPopup()" class="fixed bottom-4 right-6 z-40 flex items-center space-x-3 bg-neutral-900 border border-neutral-800 px-4 py-2.5 rounded-full shadow-2xl cursor-pointer hover:bg-neutral-800 transition">
+    <i class="fa-regular fa-paper-plane text-yellow-400 text-base"></i>
+    <span class="text-xs font-bold text-slate-100">Messages</span>
+  </div>
+
+  <div id="chatDrawerPopup" class="hidden fixed bottom-4 right-6 z-50 w-80 sm:w-86 h-[420px] bg-neutral-900 border border-neutral-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+    <div class="p-4 border-b border-neutral-800 flex justify-between items-center bg-black">
+      <h3 class="font-bold text-xs text-white">Direct Messages</h3>
+      <button onclick="window.toggleChatPopup()" class="text-neutral-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4 flex flex-col justify-center items-center text-center space-y-2 text-neutral-500">
+      <i class="fa-regular fa-comments text-2xl text-yellow-400"></i>
+      <p class="text-xs">No active chats.</p>
+      <a href="messages.html" class="text-xs text-yellow-400 font-bold hover:underline">Open Full Message Page</a>
+    </div>
+  </div>
+
   <script>
     window.selectedMediaBase64 = null;
     window.selectedMediaType = null;
@@ -429,9 +557,9 @@
           window.selectedMediaBase64 = e.target.result;
           const holder = document.getElementById('mediaPreviewHolder');
           if (window.selectedMediaType.startsWith('video/')) {
-            holder.innerHTML = `<video src="${window.selectedMediaBase64}" controls class="w-full max-h-60 object-cover"></video>`;
+            holder.innerHTML = `<video src="${window.selectedMediaBase64}" controls class="w-full max-h-52 object-cover"></video>`;
           } else {
-            holder.innerHTML = `<img src="${window.selectedMediaBase64}" class="w-full max-h-60 object-cover">`;
+            holder.innerHTML = `<img src="${window.selectedMediaBase64}" class="w-full max-h-52 object-cover">`;
           }
           document.getElementById('mediaPreviewContainer').classList.remove('hidden');
         }

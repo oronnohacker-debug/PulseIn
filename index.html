@@ -20,10 +20,10 @@
 <body class="bg-black text-slate-100 min-h-screen font-sans flex justify-center">
 
   <!-- MAIN APP WRAPPER -->
-  <div class="w-full max-w-[1280px] flex min-h-screen">
+  <div class="w-full max-w-[1280px] flex min-h-screen relative">
 
     <!-- LEFT NAVIGATION SIDEBAR -->
-    <aside class="w-20 xl:w-64 border-r border-neutral-900 p-4 flex flex-col justify-between fixed h-full bg-black z-30">
+    <aside class="w-20 xl:w-64 border-r border-neutral-900 p-4 flex flex-col justify-between fixed left-0 top-0 h-full bg-black z-30">
       <div class="space-y-6">
         <h1 class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-purple-500 hidden xl:block px-2">PulseIn</h1>
         <div class="text-2xl font-bold text-yellow-400 xl:hidden text-center">P</div>
@@ -55,17 +55,18 @@
     </aside>
 
     <!-- MIDDLE FEED SECTION -->
-    <main class="flex-1 ml-20 xl:ml-64 mr-0 lg:mr-80 min-h-screen border-r border-neutral-900 px-4 py-4 max-w-[640px] mx-auto">
+    <main class="flex-1 ml-20 xl:ml-64 mr-0 lg:mr-80 min-h-screen border-r border-neutral-900 px-4 py-4 flex flex-col items-center">
       
-      <!-- STORIES SECTION WITH SLIDER -->
-      <div class="relative w-full border-b border-neutral-900 pb-4 my-2">
+      <!-- STORIES SECTION WITH FIXED CAROUSEL -->
+      <div class="relative w-full max-w-[500px] border-b border-neutral-900 pb-4 my-2">
+        
         <!-- Left Scroll Button -->
-        <button id="btnScrollLeft" class="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black text-white w-8 h-8 rounded-full border border-neutral-700 shadow-lg flex items-center justify-center">
-          <i class="fa-solid fa-chevron-left text-xs"></i>
+        <button id="btnScrollLeft" class="absolute -left-2 top-1/2 -translate-y-1/2 z-10 bg-neutral-900/90 hover:bg-neutral-800 text-white w-7 h-7 rounded-full border border-neutral-700 shadow-md flex items-center justify-center transition">
+          <i class="fa-solid fa-chevron-left text-[10px]"></i>
         </button>
 
-        <!-- Stories Wrapper (Horizontal Scrollable) -->
-        <div id="storiesWrapper" class="flex space-x-4 overflow-x-auto scrollbar-none scroll-smooth px-10 items-center">
+        <!-- Stories Wrapper -->
+        <div id="storiesWrapper" class="flex space-x-4 overflow-x-auto scrollbar-none scroll-smooth px-6 items-center">
           
           <!-- MY STORY (UPLOAD) -->
           <div class="flex flex-col items-center space-y-1 flex-shrink-0 relative">
@@ -77,26 +78,27 @@
             <input type="file" id="storyInput" accept="image/*,video/*" class="hidden">
           </div>
 
-          <!-- DYNAMIC STORIES FROM FOLLOWED USERS -->
+          <!-- DYNAMIC STORIES -->
           <div id="storiesContainer" class="flex space-x-4 flex-shrink-0"></div>
 
         </div>
 
         <!-- Right Scroll Button -->
-        <button id="btnScrollRight" class="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black text-white w-8 h-8 rounded-full border border-neutral-700 shadow-lg flex items-center justify-center">
-          <i class="fa-solid fa-chevron-right text-xs"></i>
+        <button id="btnScrollRight" class="absolute -right-2 top-1/2 -translate-y-1/2 z-10 bg-neutral-900/90 hover:bg-neutral-800 text-white w-7 h-7 rounded-full border border-neutral-700 shadow-md flex items-center justify-center transition">
+          <i class="fa-solid fa-chevron-right text-[10px]"></i>
         </button>
+
       </div>
 
-      <!-- MAIN FEED POSTS CONTAINER -->
-      <div id="feedPostsContainer" class="pt-4 space-y-6">
+      <!-- MAIN FEED POSTS CONTAINER (Fixed Max Width) -->
+      <div id="feedPostsContainer" class="w-full max-w-[470px] pt-4 space-y-6">
         <p class="text-xs text-neutral-500 text-center py-10">Loading feed...</p>
       </div>
 
     </main>
 
     <!-- RIGHT SIDEBAR (Suggested Users) -->
-    <aside class="hidden lg:block w-80 fixed right-0 h-full p-6 space-y-6 bg-black z-20">
+    <aside class="hidden lg:block w-80 fixed right-0 top-0 h-full p-6 space-y-6 bg-black z-20 border-l border-neutral-900">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html'">
           <img id="sideMyAvatar" src="profile.png" class="w-10 h-10 rounded-full object-cover border border-neutral-800" onerror="this.src='profile.png'">
@@ -141,7 +143,6 @@
     const DEFAULT_AVATAR = "profile.png";
     window.allUsersMap = {};
 
-    // Auth Change Listener
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
@@ -156,11 +157,9 @@
       }
     });
 
-    // Logout
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.onclick = () => signOut(auth);
 
-    // Story Upload Trigger
     const myStoryBtn = document.getElementById('myStoryBtn');
     const storyInput = document.getElementById('storyInput');
     if (myStoryBtn && storyInput) {
@@ -168,19 +167,17 @@
       storyInput.onchange = (e) => uploadStory(e);
     }
 
-    // Scroll Controls
     const btnScrollLeft = document.getElementById('btnScrollLeft');
     const btnScrollRight = document.getElementById('btnScrollRight');
     const storiesWrapper = document.getElementById('storiesWrapper');
 
     if (btnScrollLeft && storiesWrapper) {
-      btnScrollLeft.onclick = () => storiesWrapper.scrollBy({ left: -300, behavior: 'smooth' });
+      btnScrollLeft.onclick = () => storiesWrapper.scrollBy({ left: -250, behavior: 'smooth' });
     }
     if (btnScrollRight && storiesWrapper) {
-      btnScrollRight.onclick = () => storiesWrapper.scrollBy({ left: 300, behavior: 'smooth' });
+      btnScrollRight.onclick = () => storiesWrapper.scrollBy({ left: 250, behavior: 'smooth' });
     }
 
-    // Fetch All Users Map
     async function fetchAllUsers() {
       const snap = await getDocs(collection(db, "users"));
       snap.forEach(docSnap => {
@@ -188,7 +185,6 @@
       });
     }
 
-    // Fetch Current User Data
     async function fetchCurrentUserData() {
       const docSnap = await getDoc(doc(db, "users", window.currentUser.uid));
       if (docSnap.exists()) {
@@ -205,7 +201,6 @@
       }
     }
 
-    // STORY UPLOAD FUNCTION
     async function uploadStory(event) {
       const file = event.target.files[0];
       if (!file || !window.currentUser) return;
@@ -227,7 +222,6 @@
       reader.readAsDataURL(file);
     }
 
-    // LISTEN TO STORIES
     function listenToStories() {
       const myUid = window.currentUser.uid;
       const myFollowing = window.currentUserData?.following || [];
@@ -265,7 +259,6 @@
       });
     }
 
-    // LISTEN TO FEED POSTS
     function listenToRealtimePosts() {
       const myUid = window.currentUser.uid;
       const myFollowing = window.currentUserData?.following || [];
@@ -306,7 +299,7 @@
             }
 
             const postCard = document.createElement('div');
-            postCard.className = "border-b border-neutral-900 pb-6 mb-6 space-y-3 max-w-[470px] mx-auto";
+            postCard.className = "border-b border-neutral-900 pb-6 mb-6 space-y-3 w-full";
             postCard.innerHTML = `
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html?uid=${post.authorUid}'">
@@ -343,7 +336,6 @@
       });
     }
 
-    // LIKE TOGGLE
     window.toggleLikeFirebase = async (postId, currentlyLiked) => {
       const postRef = doc(db, "posts", postId);
       if (currentlyLiked) {
@@ -353,7 +345,6 @@
       }
     };
 
-    // FOLLOW / REQUEST TOGGLE
     window.toggleFollowUser = async (targetUid) => {
       const myUid = window.currentUser.uid;
       const myFollowing = window.currentUserData?.following || [];
@@ -385,7 +376,6 @@
       listenToRegisteredUsersSuggestions();
     };
 
-    // SUGGESTED USERS LIST
     function listenToRegisteredUsersSuggestions() {
       const container = document.getElementById('suggestedUsersContainer');
       if (!container) return;

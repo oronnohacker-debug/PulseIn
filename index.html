@@ -33,17 +33,13 @@
             <i class="fa-solid fa-house text-lg"></i>
             <span class="hidden xl:inline text-sm">Home</span>
           </a>
-          <a href="#" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition">
+          <a href="search.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition">
             <i class="fa-solid fa-magnifying-glass text-lg"></i>
             <span class="hidden xl:inline text-sm">Search</span>
           </a>
           <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition">
             <i class="fa-regular fa-paper-plane text-lg"></i>
             <span class="hidden xl:inline text-sm">Messages</span>
-          </a>
-          <a href="#" onclick="document.getElementById('postInputModal').classList.remove('hidden')" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition cursor-pointer">
-            <i class="fa-regular fa-square-plus text-lg"></i>
-            <span class="hidden xl:inline text-sm">Create</span>
           </a>
           <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition">
             <img id="navMyAvatar" src="profile.png" class="w-6 h-6 rounded-full object-cover" onerror="this.src='profile.png'">
@@ -64,7 +60,7 @@
       <!-- STORIES SECTION WITH SLIDER -->
       <div class="relative w-full border-b border-neutral-900 pb-4 my-2">
         <!-- Left Scroll Button -->
-        <button onclick="scrollStories('left')" class="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black text-white w-8 h-8 rounded-full border border-neutral-700 shadow-lg flex items-center justify-center">
+        <button id="btnScrollLeft" class="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black text-white w-8 h-8 rounded-full border border-neutral-700 shadow-lg flex items-center justify-center">
           <i class="fa-solid fa-chevron-left text-xs"></i>
         </button>
 
@@ -73,12 +69,12 @@
           
           <!-- MY STORY (UPLOAD) -->
           <div class="flex flex-col items-center space-y-1 flex-shrink-0 relative">
-            <div onclick="document.getElementById('storyInput').click()" class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 border-2 border-dashed border-yellow-400 flex items-center justify-center cursor-pointer hover:scale-105 transition">
+            <div id="myStoryBtn" class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 border-2 border-dashed border-yellow-400 flex items-center justify-center cursor-pointer hover:scale-105 transition">
               <img id="myStoryAvatar" src="profile.png" class="w-full h-full rounded-full object-cover" onerror="this.src='profile.png'">
               <div class="absolute bottom-0 right-0 bg-blue-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-black">+</div>
             </div>
             <span class="text-[11px] text-neutral-400">Your story</span>
-            <input type="file" id="storyInput" accept="image/*,video/*" class="hidden" onchange="uploadStory(event)">
+            <input type="file" id="storyInput" accept="image/*,video/*" class="hidden">
           </div>
 
           <!-- DYNAMIC STORIES FROM FOLLOWED USERS -->
@@ -87,7 +83,7 @@
         </div>
 
         <!-- Right Scroll Button -->
-        <button onclick="scrollStories('right')" class="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black text-white w-8 h-8 rounded-full border border-neutral-700 shadow-lg flex items-center justify-center">
+        <button id="btnScrollRight" class="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black text-white w-8 h-8 rounded-full border border-neutral-700 shadow-lg flex items-center justify-center">
           <i class="fa-solid fa-chevron-right text-xs"></i>
         </button>
       </div>
@@ -161,7 +157,28 @@
     });
 
     // Logout
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.onclick = () => signOut(auth);
+
+    // Story Upload Trigger
+    const myStoryBtn = document.getElementById('myStoryBtn');
+    const storyInput = document.getElementById('storyInput');
+    if (myStoryBtn && storyInput) {
+      myStoryBtn.onclick = () => storyInput.click();
+      storyInput.onchange = (e) => uploadStory(e);
+    }
+
+    // Scroll Controls
+    const btnScrollLeft = document.getElementById('btnScrollLeft');
+    const btnScrollRight = document.getElementById('btnScrollRight');
+    const storiesWrapper = document.getElementById('storiesWrapper');
+
+    if (btnScrollLeft && storiesWrapper) {
+      btnScrollLeft.onclick = () => storiesWrapper.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+    if (btnScrollRight && storiesWrapper) {
+      btnScrollRight.onclick = () => storiesWrapper.scrollBy({ left: 300, behavior: 'smooth' });
+    }
 
     // Fetch All Users Map
     async function fetchAllUsers() {
@@ -180,16 +197,16 @@
         const name = window.currentUserData.fullName || "User";
         const username = window.currentUserData.username || "user";
 
-        document.getElementById('navMyAvatar').src = avatar;
-        document.getElementById('myStoryAvatar').src = avatar;
-        document.getElementById('sideMyAvatar').src = avatar;
-        document.getElementById('sideMyName').innerText = name;
-        document.getElementById('sideMyUsername').innerText = "@" + username;
+        if (document.getElementById('navMyAvatar')) document.getElementById('navMyAvatar').src = avatar;
+        if (document.getElementById('myStoryAvatar')) document.getElementById('myStoryAvatar').src = avatar;
+        if (document.getElementById('sideMyAvatar')) document.getElementById('sideMyAvatar').src = avatar;
+        if (document.getElementById('sideMyName')) document.getElementById('sideMyName').innerText = name;
+        if (document.getElementById('sideMyUsername')) document.getElementById('sideMyUsername').innerText = "@" + username;
       }
     }
 
-    // 1. STORY UPLOAD
-    window.uploadStory = async (event) => {
+    // STORY UPLOAD FUNCTION
+    async function uploadStory(event) {
       const file = event.target.files[0];
       if (!file || !window.currentUser) return;
 
@@ -208,9 +225,9 @@
         }
       };
       reader.readAsDataURL(file);
-    };
+    }
 
-    // 2. LISTEN TO STORIES (1 Line Slider with Privacy Filter)
+    // LISTEN TO STORIES
     function listenToStories() {
       const myUid = window.currentUser.uid;
       const myFollowing = window.currentUserData?.following || [];
@@ -226,9 +243,9 @@
           const storyId = docSnap.id;
           const authorUser = window.allUsersMap[s.authorUid] || {};
 
-          if (s.authorUid === myUid) return; // Skip own story in list
-          if (!myFollowing.includes(s.authorUid)) return; // Only followed
-          if (authorUser.isPrivate && !myFollowing.includes(s.authorUid)) return; // Hide private
+          if (s.authorUid === myUid) return;
+          if (!myFollowing.includes(s.authorUid)) return;
+          if (authorUser.isPrivate && !myFollowing.includes(s.authorUid)) return;
 
           const authorAvatar = authorUser.photoURL || DEFAULT_AVATAR;
           const authorName = authorUser.fullName || s.authorName || 'User';
@@ -248,7 +265,7 @@
       });
     }
 
-    // 3. LISTEN TO FEED POSTS
+    // LISTEN TO FEED POSTS
     function listenToRealtimePosts() {
       const myUid = window.currentUser.uid;
       const myFollowing = window.currentUserData?.following || [];
@@ -266,19 +283,16 @@
           const postId = docSnap.id;
           const authorUser = window.allUsersMap[post.authorUid] || {};
 
-          // Privacy Check
           if (authorUser.isPrivate && !myFollowing.includes(post.authorUid) && post.authorUid !== myUid) {
             return;
           }
 
-          // Show if Public or Followed or Own
           const shouldShow = myFollowing.length === 0 || post.authorUid === myUid || myFollowing.includes(post.authorUid) || !authorUser.isPrivate;
 
           if (shouldShow) {
             visibleCount++;
             const isLiked = post.likes && post.likes.includes(myUid);
             const likeCount = post.likes ? post.likes.length : 0;
-            const isMyPost = post.authorUid === myUid;
             const authorPhoto = authorUser.photoURL || DEFAULT_AVATAR;
             const authorName = authorUser.fullName || post.authorName || 'User';
 
@@ -329,7 +343,17 @@
       });
     }
 
-    // 4. FOLLOW / REQUEST TOGGLE
+    // LIKE TOGGLE
+    window.toggleLikeFirebase = async (postId, currentlyLiked) => {
+      const postRef = doc(db, "posts", postId);
+      if (currentlyLiked) {
+        await updateDoc(postRef, { likes: arrayRemove(window.currentUser.uid) });
+      } else {
+        await updateDoc(postRef, { likes: arrayUnion(window.currentUser.uid) });
+      }
+    };
+
+    // FOLLOW / REQUEST TOGGLE
     window.toggleFollowUser = async (targetUid) => {
       const myUid = window.currentUser.uid;
       const myFollowing = window.currentUserData?.following || [];
@@ -361,7 +385,7 @@
       listenToRegisteredUsersSuggestions();
     };
 
-    // 5. SUGGESTED USERS LIST
+    // SUGGESTED USERS LIST
     function listenToRegisteredUsersSuggestions() {
       const container = document.getElementById('suggestedUsersContainer');
       if (!container) return;
@@ -409,17 +433,6 @@
         }
       });
     }
-
-    // Story Carousel Scroll Function
-    window.scrollStories = (direction) => {
-      const wrapper = document.getElementById('storiesWrapper');
-      const scrollAmount = 300;
-      if (direction === 'left') {
-        wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      } else {
-        wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    };
   </script>
 </body>
 </html>

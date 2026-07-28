@@ -2,24 +2,23 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PulseIn — Social Feed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PulseIn — Instagram Style Layout</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <style>
-    /* সাইডবার অটো-হাইড ট্রানজিশন */
-    .sidebar { width: 72px; transition: width 0.3s ease; }
+    /* সাইডবার অটো-হাইড ইফেক্ট */
+    .sidebar { width: 72px; transition: width 0.3s ease; overflow: hidden; }
     .sidebar:hover { width: 240px; }
-    .sidebar span { opacity: 0; transition: opacity 0.2s; }
+    .sidebar span { opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
     .sidebar:hover span { opacity: 1; }
-    .sidebar:hover .logo-text { display: block; }
   </style>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, addDoc, onSnapshot, query, orderBy, updateDoc, arrayUnion, arrayRemove, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, arrayUnion, arrayRemove, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCPjBq74KCEgeO4MK6EZFjMuA3ju3s3Wpc",
@@ -35,39 +34,34 @@
     const db = getFirestore(app);
 
     window.currentUser = null;
-    window.currentUserData = null;
     window.selectedPostMedia = null;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = "login.html"; }
+      if (!user) window.location.href = "login.html";
       else {
         window.currentUser = user;
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
-          window.currentUserData = userDoc.data();
+          const data = userDoc.data();
+          document.getElementById('myStoryAvatar').src = data.photoURL || 'https://via.placeholder.com/150';
           listenToRealtimePosts();
         }
       }
     });
 
-    // পোস্ট পাবলিশ করার সময় চেক করা হচ্ছে যে মিডিয়া আছে কি না
+    // পোস্ট পাবলিশ করার সময় মিডিয়া চেক
     window.publishPost = async () => {
-      const text = document.getElementById('postInputText').value.trim();
-      
-      // Validation: যদি ইমেজ বা ভিডিও না থাকে, পোস্ট হবে না
       if (!window.selectedPostMedia) {
-        alert("Please select a photo or video to post!");
+        alert("Media is required to post!");
         return;
       }
-
+      const text = document.getElementById('postInputText').value;
       await addDoc(collection(db, "posts"), {
         text: text,
         media: window.selectedPostMedia,
         authorUid: window.currentUser.uid,
-        authorName: window.currentUserData.fullName || "User",
-        createdAt: new Date()
+        createdAt: serverTimestamp()
       });
-
       window.closeCreatePostModal();
       window.selectedPostMedia = null;
     };
@@ -78,25 +72,20 @@
         alert("You cannot delete other people's posts!");
         return;
       }
-      if (confirm("Delete this post?")) {
-        await deleteDoc(doc(db, "posts", postId));
-      }
+      if (confirm("Delete this post?")) await deleteDoc(doc(db, "posts", postId));
     };
 
     window.toggleCreateDropdown = () => document.getElementById('createDropdown').classList.toggle('hidden');
     window.openCreatePostModal = () => document.getElementById('createPostModal').classList.remove('hidden');
     window.closeCreatePostModal = () => document.getElementById('createPostModal').classList.add('hidden');
-    
-    // বাকি ফাংশনগুলো এখানে থাকবে...
   </script>
 </head>
 <body class="bg-black text-slate-100 min-h-screen">
 
   <!-- সাইডবার -->
-  <aside class="sidebar fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex flex-col justify-between p-4 z-50 overflow-hidden">
+  <aside class="sidebar hidden md:flex fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex-col justify-between p-4 z-50">
     <div class="space-y-8">
       <div class="px-2 pt-2"><img src="logo.png" alt="Logo" class="h-8 w-8"></div>
-
       <nav class="space-y-4 text-sm font-medium">
         <a href="index.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900"><i class="fa-solid fa-house text-xl"></i><span>Home</span></a>
         
@@ -105,37 +94,33 @@
           <button onclick="toggleCreateDropdown()" class="w-full flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900">
             <i class="fa-regular fa-square-plus text-xl"></i><span>Create</span>
           </button>
-          <div id="createDropdown" class="hidden absolute left-14 bottom-0 bg-neutral-900 p-2 rounded-xl border border-neutral-800 w-40">
+          <div id="createDropdown" class="hidden absolute left-14 bottom-0 bg-neutral-900 p-2 rounded-xl border border-neutral-800 w-40 z-50">
             <button onclick="openCreatePostModal()" class="block w-full text-left p-2 hover:bg-neutral-800 rounded">Create Post</button>
             <button onclick="window.location.href='upload-reel.html'" class="block w-full text-left p-2 hover:bg-neutral-800 rounded">Create Reel</button>
           </div>
         </div>
-
-        <a href="explore.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900"><i class="fa-regular fa-compass text-xl"></i><span>Explore</span></a>
+        
         <a href="messages.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900"><i class="fa-regular fa-paper-plane text-xl"></i><span>Messages</span></a>
       </nav>
     </div>
-
-    <!-- সেটিংস সেকশন -->
-    <a href="settings.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900">
-      <i class="fa-solid fa-gear text-xl"></i><span>Settings</span>
-    </a>
+    <a href="settings.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900"><i class="fa-solid fa-gear text-xl"></i><span>Settings</span></a>
   </aside>
 
   <!-- মেইন কন্টেন্ট -->
   <main class="ml-20 p-6">
-    <div id="feedPostsContainer" class="max-w-xl mx-auto"></div>
+    <div id="feedPostsContainer" class="max-w-[470px] mx-auto"></div>
   </main>
 
   <!-- Create Post Modal -->
-  <div id="createPostModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+  <div id="createPostModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
     <div class="bg-[#121212] border border-neutral-800 rounded-2xl w-full max-w-md p-5 space-y-4">
       <h3 class="font-bold">Create Post</h3>
-      <textarea id="postInputText" class="w-full bg-neutral-900 p-3 rounded-lg text-white" placeholder="Write something..."></textarea>
-      <input type="file" onchange="window.selectedPostMedia = event.target.files[0]" class="text-xs">
+      <textarea id="postInputText" class="w-full bg-neutral-900 p-3 rounded-lg text-white" placeholder="Write caption..."></textarea>
+      <input type="file" accept="image/*,video/*" onchange="window.selectedPostMedia = event.target.files[0]" class="text-xs">
       <button onclick="publishPost()" class="bg-blue-500 w-full py-2 rounded-lg font-bold">Share</button>
     </div>
   </div>
 
+  <img id="myStoryAvatar" class="hidden"> <!-- Hidden Helper -->
 </body>
 </html>

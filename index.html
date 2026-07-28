@@ -2,31 +2,131 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PulseIn — Instagram Style Layout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseIn — Home</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
   <style>
-    .sidebar-collapsed { width: 4.5rem; }
-    .sidebar-text {
-      opacity: 0;
-      white-space: nowrap;
-      transition: opacity 0.2s ease-in-out;
+    /* Custom Scrollbar Hide */
+    .scrollbar-none::-webkit-scrollbar {
       display: none;
     }
-    aside:hover .sidebar-text { opacity: 1; display: inline; }
-    aside:hover { width: 16rem !important; }
-    /* GIF Modal Scrollbar */
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
+</head>
+<body class="bg-black text-slate-100 min-h-screen font-sans flex justify-center">
 
+  <!-- MAIN APP WRAPPER -->
+  <div class="w-full max-w-[1280px] flex min-h-screen">
+
+    <!-- LEFT NAVIGATION SIDEBAR -->
+    <aside class="w-20 xl:w-64 border-r border-neutral-900 p-4 flex flex-col justify-between fixed h-full bg-black z-30">
+      <div class="space-y-6">
+        <h1 class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-purple-500 hidden xl:block px-2">PulseIn</h1>
+        <div class="text-2xl font-bold text-yellow-400 xl:hidden text-center">P</div>
+
+        <nav class="space-y-2">
+          <a href="index.html" class="flex items-center space-x-4 p-3 rounded-xl bg-neutral-900 text-white font-bold">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="hidden xl:inline text-sm">Home</span>
+          </a>
+          <a href="#" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition">
+            <i class="fa-solid fa-magnifying-glass text-lg"></i>
+            <span class="hidden xl:inline text-sm">Search</span>
+          </a>
+          <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition">
+            <i class="fa-regular fa-paper-plane text-lg"></i>
+            <span class="hidden xl:inline text-sm">Messages</span>
+          </a>
+          <a href="#" onclick="document.getElementById('postInputModal').classList.remove('hidden')" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition cursor-pointer">
+            <i class="fa-regular fa-square-plus text-lg"></i>
+            <span class="hidden xl:inline text-sm">Create</span>
+          </a>
+          <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-neutral-400 hover:text-white transition">
+            <img id="navMyAvatar" src="profile.png" class="w-6 h-6 rounded-full object-cover" onerror="this.src='profile.png'">
+            <span class="hidden xl:inline text-sm">Profile</span>
+          </a>
+        </nav>
+      </div>
+
+      <button id="logoutBtn" class="flex items-center space-x-4 p-3 rounded-xl text-red-500 hover:bg-neutral-900 transition w-full">
+        <i class="fa-solid fa-right-from-bracket text-lg"></i>
+        <span class="hidden xl:inline text-sm font-bold">Logout</span>
+      </button>
+    </aside>
+
+    <!-- MIDDLE FEED SECTION -->
+    <main class="flex-1 ml-20 xl:ml-64 mr-0 lg:mr-80 min-h-screen border-r border-neutral-900 px-4 py-4 max-w-[640px] mx-auto">
+      
+      <!-- STORIES SECTION WITH SLIDER -->
+      <div class="relative w-full border-b border-neutral-900 pb-4 my-2">
+        <!-- Left Scroll Button -->
+        <button onclick="scrollStories('left')" class="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black text-white w-8 h-8 rounded-full border border-neutral-700 shadow-lg flex items-center justify-center">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+
+        <!-- Stories Wrapper (Horizontal Scrollable) -->
+        <div id="storiesWrapper" class="flex space-x-4 overflow-x-auto scrollbar-none scroll-smooth px-10 items-center">
+          
+          <!-- MY STORY (UPLOAD) -->
+          <div class="flex flex-col items-center space-y-1 flex-shrink-0 relative">
+            <div onclick="document.getElementById('storyInput').click()" class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 border-2 border-dashed border-yellow-400 flex items-center justify-center cursor-pointer hover:scale-105 transition">
+              <img id="myStoryAvatar" src="profile.png" class="w-full h-full rounded-full object-cover" onerror="this.src='profile.png'">
+              <div class="absolute bottom-0 right-0 bg-blue-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-black">+</div>
+            </div>
+            <span class="text-[11px] text-neutral-400">Your story</span>
+            <input type="file" id="storyInput" accept="image/*,video/*" class="hidden" onchange="uploadStory(event)">
+          </div>
+
+          <!-- DYNAMIC STORIES FROM FOLLOWED USERS -->
+          <div id="storiesContainer" class="flex space-x-4 flex-shrink-0"></div>
+
+        </div>
+
+        <!-- Right Scroll Button -->
+        <button onclick="scrollStories('right')" class="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-black/80 hover:bg-black text-white w-8 h-8 rounded-full border border-neutral-700 shadow-lg flex items-center justify-center">
+          <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+      </div>
+
+      <!-- MAIN FEED POSTS CONTAINER -->
+      <div id="feedPostsContainer" class="pt-4 space-y-6">
+        <p class="text-xs text-neutral-500 text-center py-10">Loading feed...</p>
+      </div>
+
+    </main>
+
+    <!-- RIGHT SIDEBAR (Suggested Users) -->
+    <aside class="hidden lg:block w-80 fixed right-0 h-full p-6 space-y-6 bg-black z-20">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html'">
+          <img id="sideMyAvatar" src="profile.png" class="w-10 h-10 rounded-full object-cover border border-neutral-800" onerror="this.src='profile.png'">
+          <div>
+            <p id="sideMyName" class="font-bold text-xs text-white">User</p>
+            <p id="sideMyUsername" class="text-neutral-500 text-[10px]">@username</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-neutral-400">Suggested for you</h3>
+        </div>
+        <div id="suggestedUsersContainer" class="space-y-3"></div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- FIREBASE MODULE & LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { 
-      getFirestore, doc, getDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, arrayUnion, arrayRemove, deleteDoc, where 
+      getFirestore, collection, doc, getDoc, getDocs, onSnapshot, query, orderBy, addDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -35,8 +135,7 @@
       projectId: "echoo-325d4",
       storageBucket: "echoo-325d4.firebasestorage.app",
       messagingSenderId: "694671555312",
-      appId: "1:694671555312:web:12b3bdf72ff02943eba035",
-      measurementId: "G-N8L551KYDP"
+      appId: "1:694671555312:web:12b3bdf72ff02943eba035"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -44,179 +143,74 @@
     const db = getFirestore(app);
 
     const DEFAULT_AVATAR = "profile.png";
+    window.allUsersMap = {};
 
-    window.currentUser = null;
-    window.currentUserData = null;
-    window.allUsersMap = {}; // Cache users for real-time profile picture update
-    window.selectedPostMedia = null;
-    window.selectedMediaType = null;
-    window.activeCommentPostId = null;
-
-    // 50 Trending GIFs collection
-    window.gifList = Array.from({ length: 50 }, (_, i) => `https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eXA2NGp5eXlhNWd0N2JvZ3U5eXZ2NWRyZjIydTFieTRyd2syeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKsjLu9N79M354M/giphy.gif`);
-
+    // Auth Change Listener
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
       } else {
         window.currentUser = user;
-        
-        // Listen to User Profile changes
-        onSnapshot(doc(db, "users", user.uid), (docSnap) => {
-          if (docSnap.exists()) {
-            window.currentUserData = docSnap.data();
-            const avatarUrl = window.currentUserData.photoURL || DEFAULT_AVATAR;
-            
-            document.getElementById('myStoryAvatar').src = avatarUrl;
-            if(document.getElementById('rightUserAvatar')) document.getElementById('rightUserAvatar').src = avatarUrl;
-            if(document.getElementById('rightUserName')) document.getElementById('rightUserName').innerText = window.currentUserData.fullName || 'User';
-            if(document.getElementById('rightUserHandle')) document.getElementById('rightUserHandle').innerText = window.currentUserData.username || 'user';
-            
-            // Link My Profile Click to Profile page
-            if(document.getElementById('myProfileLink')) {
-              document.getElementById('myProfileLink').onclick = () => {
-                window.location.href = `profile.html?uid=${user.uid}`;
-              };
-            }
+        await fetchAllUsers();
+        await fetchCurrentUserData();
 
-            listenToAllUsers();
-            listenToRecentConversations();
-          } else {
-            window.location.href = "setup-profile.html";
-          }
-        });
+        listenToStories();
+        listenToRealtimePosts();
+        listenToRegisteredUsersSuggestions();
       }
     });
 
-    // Real-time listener for all users to sync profile pictures
-    function listenToAllUsers() {
-      onSnapshot(collection(db, "users"), (snapshot) => {
-        snapshot.forEach((uDoc) => {
-          window.allUsersMap[uDoc.id] = uDoc.data();
-        });
-        listenToRegisteredUsersSuggestions();
-        listenToRealtimePosts();
-        listenToStories();
+    // Logout
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+    // Fetch All Users Map
+    async function fetchAllUsers() {
+      const snap = await getDocs(collection(db, "users"));
+      snap.forEach(docSnap => {
+        window.allUsersMap[docSnap.id] = docSnap.data();
       });
     }
 
-    // Time Formatting Logic
-    function timeAgo(timestamp) {
-      if (!timestamp) return "Just now";
-      const seconds = Math.floor((new Date() - timestamp.toDate()) / 1000);
-      if (seconds < 60) return `${seconds}s`;
-      const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return `${minutes}m`;
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `${hours}h`;
-      const days = Math.floor(hours / 24);
-      if (days < 7) return `${days}d`;
-      const weeks = Math.floor(days / 7);
-      return `${weeks}w`;
+    // Fetch Current User Data
+    async function fetchCurrentUserData() {
+      const docSnap = await getDoc(doc(db, "users", window.currentUser.uid));
+      if (docSnap.exists()) {
+        window.currentUserData = docSnap.data();
+        const avatar = window.currentUserData.photoURL || DEFAULT_AVATAR;
+        const name = window.currentUserData.fullName || "User";
+        const username = window.currentUserData.username || "user";
+
+        document.getElementById('navMyAvatar').src = avatar;
+        document.getElementById('myStoryAvatar').src = avatar;
+        document.getElementById('sideMyAvatar').src = avatar;
+        document.getElementById('sideMyName').innerText = name;
+        document.getElementById('sideMyUsername').innerText = "@" + username;
+      }
     }
 
-    // Follow / Unfollow Handler
-    window.toggleFollowUser = async (targetUid) => {
-      if (!window.currentUser) return;
-      const myUid = window.currentUser.uid;
-      const myFollowing = window.currentUserData.following || [];
-      const isFollowing = myFollowing.includes(targetUid);
+    // 1. STORY UPLOAD
+    window.uploadStory = async (event) => {
+      const file = event.target.files[0];
+      if (!file || !window.currentUser) return;
 
-      const myDocRef = doc(db, "users", myUid);
-      const targetDocRef = doc(db, "users", targetUid);
-
-      if (isFollowing) {
-        await updateDoc(myDocRef, { following: arrayRemove(targetUid) });
-        await updateDoc(targetDocRef, { followers: arrayRemove(myUid) });
-      } else {
-        await updateDoc(myDocRef, { following: arrayUnion(targetUid) });
-        await updateDoc(targetDocRef, { followers: arrayUnion(myUid) });
-      }
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          await addDoc(collection(db, "stories"), {
+            authorUid: window.currentUser.uid,
+            authorName: window.currentUserData?.fullName || "User",
+            media: e.target.result,
+            createdAt: serverTimestamp()
+          });
+          alert("Story uploaded successfully!");
+        } catch (error) {
+          alert("Failed to upload story.");
+        }
+      };
+      reader.readAsDataURL(file);
     };
 
-    // Suggestions List & Navigation
-    function listenToRegisteredUsersSuggestions() {
-      const container = document.getElementById('suggestedUsersContainer');
-      if (!container) return;
-      container.innerHTML = "";
-
-      const myFollowing = window.currentUserData?.following || [];
-
-      Object.keys(window.allUsersMap).forEach((userId) => {
-        if (userId !== window.currentUser.uid) {
-          const user = window.allUsersMap[userId];
-          const avatar = user.photoURL || DEFAULT_AVATAR;
-          const name = user.fullName || 'User';
-          const username = user.username || 'user';
-          const isFollowing = myFollowing.includes(userId);
-
-          const div = document.createElement('div');
-          div.className = "flex items-center justify-between";
-          div.innerHTML = `
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html?uid=${userId}'">
-              <img src="${avatar}" class="w-9 h-9 rounded-full object-cover border border-neutral-800" onerror="this.src='${DEFAULT_AVATAR}'">
-              <div>
-                <p class="font-bold text-white hover:underline">${username}</p>
-                <p class="text-neutral-500 text-[10px] truncate w-28">${name}</p>
-              </div>
-            </div>
-            <button onclick="window.toggleFollowUser('${userId}')" class="${isFollowing ? 'text-neutral-400' : 'text-blue-500'} hover:text-white font-bold text-xs">
-              ${isFollowing ? 'Following' : 'Follow'}
-            </button>
-          `;
-          container.appendChild(div);
-        }
-      });
-    }
-
-    // Recent Conversations inside Popup Message Box
-    function listenToRecentConversations() {
-      const popupMsgList = document.getElementById('popupMessageUsersList');
-      if (!popupMsgList) return;
-
-      const q = query(
-        collection(db, "chats"), 
-        where("participants", "array-contains", window.currentUser.uid),
-        orderBy("lastMessageTime", "desc")
-      );
-
-      onSnapshot(q, (snapshot) => {
-        popupMsgList.innerHTML = "";
-        if (snapshot.empty) {
-          popupMsgList.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">No recent messages</p>`;
-          return;
-        }
-
-        snapshot.forEach((docSnap) => {
-          const chat = docSnap.data();
-          const otherUid = chat.participants.find(id => id !== window.currentUser.uid);
-          const otherUser = window.allUsersMap[otherUid] || {};
-          
-          const avatar = otherUser.photoURL || DEFAULT_AVATAR;
-          const name = otherUser.fullName || 'User';
-
-          const msgDiv = document.createElement('div');
-          msgDiv.className = "flex items-center justify-between p-2 hover:bg-neutral-900 rounded-xl cursor-pointer transition";
-          msgDiv.onclick = () => window.location.href = `messages.html?chatId=${docSnap.id}`;
-          msgDiv.innerHTML = `
-            <div class="flex items-center space-x-3">
-              <img src="${avatar}" class="w-10 h-10 rounded-full object-cover border border-neutral-800" onerror="this.src='${DEFAULT_AVATAR}'">
-              <div>
-                <p class="text-xs font-bold text-white">${name}</p>
-                <p class="text-[11px] text-neutral-400 truncate w-36">${chat.lastMessage || 'Sent a message'}</p>
-              </div>
-            </div>
-            <i class="fa-regular fa-paper-plane text-xs text-neutral-500"></i>
-          `;
-          popupMsgList.appendChild(msgDiv);
-        });
-      }, (error) => {
-        // Fallback mockup list if 'chats' collection doesn't exist yet
-        popupMsgList.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">Start messaging users to see history</p>`;
-      });
-    }
-
-    // Stories (Only Following + Myself)
+    // 2. LISTEN TO STORIES (1 Line Slider with Privacy Filter)
     function listenToStories() {
       const myUid = window.currentUser.uid;
       const myFollowing = window.currentUserData?.following || [];
@@ -224,31 +218,37 @@
       const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
         const container = document.getElementById('storiesContainer');
+        if (!container) return;
         container.innerHTML = "";
-        
+
         snapshot.forEach((docSnap) => {
           const s = docSnap.data();
-          // Filter: Only show if author is me or in my following list
-          if (s.authorUid === myUid || myFollowing.includes(s.authorUid)) {
-            const authorData = window.allUsersMap[s.authorUid] || {};
-            const authorAvatar = authorData.photoURL || DEFAULT_AVATAR;
+          const storyId = docSnap.id;
+          const authorUser = window.allUsersMap[s.authorUid] || {};
 
-            const div = document.createElement('div');
-            div.className = "flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer";
-            div.onclick = () => window.open(s.media, '_blank');
-            div.innerHTML = `
-              <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600">
-                <img src="${authorAvatar}" class="w-full h-full rounded-full object-cover border-2 border-black" onerror="this.src='${DEFAULT_AVATAR}'">
-              </div>
-              <span class="text-[11px] text-neutral-300 truncate w-16 text-center">${authorData.fullName || s.authorName}</span>
-            `;
-            container.appendChild(div);
-          }
+          if (s.authorUid === myUid) return; // Skip own story in list
+          if (!myFollowing.includes(s.authorUid)) return; // Only followed
+          if (authorUser.isPrivate && !myFollowing.includes(s.authorUid)) return; // Hide private
+
+          const authorAvatar = authorUser.photoURL || DEFAULT_AVATAR;
+          const authorName = authorUser.fullName || s.authorName || 'User';
+
+          const storyDiv = document.createElement('div');
+          storyDiv.className = "flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer";
+          storyDiv.onclick = () => window.location.href = `story.html?storyId=${storyId}`;
+
+          storyDiv.innerHTML = `
+            <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 hover:scale-105 transition transform">
+              <img src="${authorAvatar}" class="w-full h-full rounded-full object-cover border-2 border-black" onerror="this.src='${DEFAULT_AVATAR}'">
+            </div>
+            <span class="text-[11px] text-neutral-300 truncate w-16 text-center">${authorName}</span>
+          `;
+          container.appendChild(storyDiv);
         });
       });
     }
 
-    // Feed Posts (Only Following + Myself)
+    // 3. LISTEN TO FEED POSTS
     function listenToRealtimePosts() {
       const myUid = window.currentUser.uid;
       const myFollowing = window.currentUserData?.following || [];
@@ -256,20 +256,29 @@
       const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
         const feed = document.getElementById('feedPostsContainer');
+        if (!feed) return;
         feed.innerHTML = "";
+
+        let visibleCount = 0;
 
         snapshot.forEach((docSnap) => {
           const post = docSnap.data();
           const postId = docSnap.id;
+          const authorUser = window.allUsersMap[post.authorUid] || {};
 
-          // Filter logic: Only show post if created by me OR user I follow
-          if (post.authorUid === myUid || myFollowing.includes(post.authorUid)) {
+          // Privacy Check
+          if (authorUser.isPrivate && !myFollowing.includes(post.authorUid) && post.authorUid !== myUid) {
+            return;
+          }
+
+          // Show if Public or Followed or Own
+          const shouldShow = myFollowing.length === 0 || post.authorUid === myUid || myFollowing.includes(post.authorUid) || !authorUser.isPrivate;
+
+          if (shouldShow) {
+            visibleCount++;
             const isLiked = post.likes && post.likes.includes(myUid);
             const likeCount = post.likes ? post.likes.length : 0;
             const isMyPost = post.authorUid === myUid;
-
-            // Always get fresh user profile pic from allUsersMap
-            const authorUser = window.allUsersMap[post.authorUid] || {};
             const authorPhoto = authorUser.photoURL || DEFAULT_AVATAR;
             const authorName = authorUser.fullName || post.authorName || 'User';
 
@@ -283,7 +292,7 @@
             }
 
             const postCard = document.createElement('div');
-            postCard.className = "border-b border-neutral-800 pb-6 mb-6 space-y-3 max-w-[470px] mx-auto";
+            postCard.className = "border-b border-neutral-900 pb-6 mb-6 space-y-3 max-w-[470px] mx-auto";
             postCard.innerHTML = `
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html?uid=${post.authorUid}'">
@@ -292,411 +301,125 @@
                   </div>
                   <div class="flex items-center space-x-2">
                     <h4 class="text-xs font-bold text-white hover:underline">${authorName}</h4>
-                    <span class="text-neutral-500 text-[10px]">• ${timeAgo(post.createdAt)}</span>
                   </div>
                 </div>
-                
-                ${isMyPost ? `
-                <button onclick="window.deletePost('${postId}', '${post.authorUid}')" class="text-neutral-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button>
-                ` : ''}
               </div>
 
               ${mediaHTML}
               ${post.text ? `<p class="text-xs text-slate-200 mt-2">${post.text}</p>` : ''}
 
-              <!-- Post Actions -->
               <div class="flex items-center justify-between pt-1 text-white text-lg">
                 <div class="flex items-center space-x-4">
                   <button onclick="window.toggleLikeFirebase('${postId}', ${isLiked})" class="${isLiked ? 'text-red-500' : 'hover:text-neutral-400'}">
                     <i class="${isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i>
                   </button>
-                  <button onclick="window.toggleCommentBox('${postId}')" class="hover:text-neutral-400">
-                    <i class="fa-regular fa-comment"></i>
-                  </button>
-                  <!-- Repost Button -->
-                  <button onclick="window.repostPost('${postId}')" class="hover:text-green-400 text-neutral-300" title="Repost">
-                    <i class="fa-solid fa-repeat"></i>
-                  </button>
-                  <button onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied!');" class="hover:text-neutral-400">
-                    <i class="fa-regular fa-paper-plane"></i>
-                  </button>
+                  <i class="fa-regular fa-comment hover:text-neutral-400 cursor-pointer"></i>
+                  <i class="fa-regular fa-paper-plane hover:text-neutral-400 cursor-pointer"></i>
                 </div>
-                <i class="fa-regular fa-bookmark hover:text-neutral-400 cursor-pointer"></i>
               </div>
-
               <p class="text-xs font-bold text-white">${likeCount} likes</p>
-
-              <!-- Comment Section with GIF Support -->
-              <div id="commentSection-${postId}" class="hidden pt-2 space-y-2">
-                <div id="commentsList-${postId}" class="space-y-1.5 max-h-40 overflow-y-auto custom-scroll"></div>
-                <div class="flex items-center space-x-2 pt-2 border-t border-neutral-900">
-                  <input type="text" id="commentInput-${postId}" placeholder="Add a comment..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
-                  <button onclick="window.openGifModal('${postId}')" class="text-xs bg-neutral-800 hover:bg-neutral-700 text-yellow-400 font-bold px-2 py-1 rounded">GIF</button>
-                  <button onclick="window.sendComment('${postId}')" class="text-blue-500 hover:text-white text-xs font-bold">Post</button>
-                </div>
-              </div>
             `;
             feed.appendChild(postCard);
-            window.listenToComments(postId);
           }
         });
+
+        if (visibleCount === 0) {
+          feed.innerHTML = `<p class="text-xs text-neutral-500 text-center py-10">No posts available right now.</p>`;
+        }
       });
     }
 
-    // Repost Post / Reel Feature
-    window.repostPost = async (postId) => {
-      const postRef = doc(db, "posts", postId);
-      const postSnap = await getDoc(postRef);
-      if (postSnap.exists()) {
-        const originalPost = postSnap.data();
-        await addDoc(collection(db, "posts"), {
-          type: originalPost.type || 'post',
-          text: `🔄 Reposted: ${originalPost.text || ''}`,
-          media: originalPost.media || null,
-          mediaType: originalPost.mediaType || null,
-          authorUid: window.currentUser.uid,
-          authorName: window.currentUserData.fullName || "User",
-          likes: [],
-          createdAt: serverTimestamp()
-        });
-        alert("Post reposted to your profile!");
+    // 4. FOLLOW / REQUEST TOGGLE
+    window.toggleFollowUser = async (targetUid) => {
+      const myUid = window.currentUser.uid;
+      const myFollowing = window.currentUserData?.following || [];
+      const targetUser = window.allUsersMap[targetUid];
+
+      if (!targetUser) return;
+
+      const myDocRef = doc(db, "users", myUid);
+      const targetDocRef = doc(db, "users", targetUid);
+
+      const isFollowing = myFollowing.includes(targetUid);
+      const isRequested = targetUser.followRequests && targetUser.followRequests.includes(myUid);
+
+      if (isFollowing) {
+        await updateDoc(myDocRef, { following: arrayRemove(targetUid) });
+        await updateDoc(targetDocRef, { followers: arrayRemove(myUid) });
+      } else if (isRequested) {
+        await updateDoc(targetDocRef, { followRequests: arrayRemove(myUid) });
+      } else {
+        if (targetUser.isPrivate) {
+          await updateDoc(targetDocRef, { followRequests: arrayUnion(myUid) });
+          alert("Follow request sent!");
+        } else {
+          await updateDoc(myDocRef, { following: arrayUnion(targetUid) });
+          await updateDoc(targetDocRef, { followers: arrayUnion(myUid) });
+        }
       }
+      await fetchCurrentUserData();
+      listenToRegisteredUsersSuggestions();
     };
 
-    // GIF Modal Handler
-    window.openGifModal = (postId) => {
-      window.activeCommentPostId = postId;
-      const modal = document.getElementById('gifPickerModal');
-      const container = document.getElementById('gifGridContainer');
+    // 5. SUGGESTED USERS LIST
+    function listenToRegisteredUsersSuggestions() {
+      const container = document.getElementById('suggestedUsersContainer');
+      if (!container) return;
       container.innerHTML = "";
 
-      window.gifList.forEach((gifUrl) => {
-        const img = document.createElement('img');
-        img.src = gifUrl;
-        img.className = "w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 transition";
-        img.onclick = () => window.sendGifComment(gifUrl);
-        container.appendChild(img);
-      });
+      const myFollowing = window.currentUserData?.following || [];
+      const myUid = window.currentUser.uid;
 
-      modal.classList.remove('hidden');
-    };
+      Object.keys(window.allUsersMap).forEach((userId) => {
+        if (userId !== myUid) {
+          const user = window.allUsersMap[userId];
+          const avatar = user.photoURL || DEFAULT_AVATAR;
+          const name = user.fullName || 'User';
+          const username = user.username || 'user';
 
-    window.closeGifModal = () => {
-      document.getElementById('gifPickerModal').classList.add('hidden');
-    };
+          const isFollowing = myFollowing.includes(userId);
+          const isRequested = user.followRequests && user.followRequests.includes(myUid);
 
-    window.sendGifComment = async (gifUrl) => {
-      if (!window.activeCommentPostId) return;
-      await addDoc(collection(db, "posts", window.activeCommentPostId, "comments"), {
-        gif: gifUrl,
-        authorName: window.currentUserData.fullName || "User",
-        createdAt: serverTimestamp()
-      });
-      window.closeGifModal();
-    };
+          let btnText = "Follow";
+          let btnClass = "text-blue-500";
 
-    window.listenToComments = (postId) => {
-      const commentsRef = collection(db, "posts", postId, "comments");
-      const q = query(commentsRef, orderBy("createdAt", "asc"));
-      onSnapshot(q, (snapshot) => {
-        const list = document.getElementById(`commentsList-${postId}`);
-        if (!list) return;
-        list.innerHTML = "";
-        snapshot.forEach((docSnap) => {
-          const c = docSnap.data();
-          const item = document.createElement('div');
-          item.className = "text-xs space-y-1";
-          
-          let commentContent = c.text ? `<span class="text-slate-300">${c.text}</span>` : '';
-          if (c.gif) {
-            commentContent += `<img src="${c.gif}" class="h-24 rounded-lg mt-1 border border-neutral-800">`;
+          if (isFollowing) {
+            btnText = "Following";
+            btnClass = "text-neutral-500";
+          } else if (isRequested) {
+            btnText = "Requested";
+            btnClass = "text-yellow-500";
           }
 
-          item.innerHTML = `<span class="font-bold text-white mr-2">${c.authorName}</span>${commentContent}`;
-          list.appendChild(item);
-        });
+          const div = document.createElement('div');
+          div.className = "flex items-center justify-between";
+          div.innerHTML = `
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html?uid=${userId}'">
+              <img src="${avatar}" class="w-8 h-8 rounded-full object-cover border border-neutral-800" onerror="this.src='${DEFAULT_AVATAR}'">
+              <div>
+                <p class="font-bold text-xs text-white hover:underline">${username}</p>
+                <p class="text-neutral-500 text-[10px] truncate w-24">${name}</p>
+              </div>
+            </div>
+            <button onclick="window.toggleFollowUser('${userId}')" class="${btnClass} hover:text-white font-bold text-xs">
+              ${btnText}
+            </button>
+          `;
+          container.appendChild(div);
+        }
       });
-    };
+    }
 
-    window.sendComment = async (postId) => {
-      const input = document.getElementById(`commentInput-${postId}`);
-      const val = input.value.trim();
-      if (!val) return;
-      await addDoc(collection(db, "posts", postId, "comments"), {
-        text: val,
-        authorName: window.currentUserData.fullName || "User",
-        createdAt: serverTimestamp()
-      });
-      input.value = "";
-    };
-
-    window.deletePost = async (postId, authorUid) => {
-      if (authorUid !== window.currentUser.uid) return;
-      if (confirm("Delete this post?")) {
-        await deleteDoc(doc(db, "posts", postId));
-      }
-    };
-
-    window.toggleCommentBox = (postId) => {
-      document.getElementById(`commentSection-${postId}`).classList.toggle('hidden');
-    };
-
-    window.toggleLikeFirebase = async (postId, currentlyLiked) => {
-      const postRef = doc(db, "posts", postId);
-      if (currentlyLiked) {
-        await updateDoc(postRef, { likes: arrayRemove(window.currentUser.uid) });
+    // Story Carousel Scroll Function
+    window.scrollStories = (direction) => {
+      const wrapper = document.getElementById('storiesWrapper');
+      const scrollAmount = 300;
+      if (direction === 'left') {
+        wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
       } else {
-        await updateDoc(postRef, { likes: arrayUnion(window.currentUser.uid) });
+        wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
       }
     };
-
-    window.publishPost = async (isReel = false) => {
-      const text = document.getElementById('postInputText').value.trim();
-      if (!window.selectedPostMedia) {
-        alert("Please select a photo or video!");
-        return;
-      }
-
-      await addDoc(collection(db, "posts"), {
-        type: isReel ? 'reel' : 'post',
-        text: text,
-        media: window.selectedPostMedia,
-        mediaType: window.selectedMediaType,
-        authorUid: window.currentUser.uid,
-        authorName: window.currentUserData.fullName || "User",
-        likes: [],
-        createdAt: serverTimestamp()
-      });
-
-      document.getElementById('postInputText').value = "";
-      window.selectedPostMedia = null;
-      window.selectedMediaType = null;
-      document.getElementById('mediaPreviewContainer').innerHTML = "";
-      window.closeCreatePostModal();
-    };
-
-    window.previewPostMedia = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        window.selectedMediaType = file.type;
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          window.selectedPostMedia = evt.target.result;
-          document.getElementById('mediaPreviewContainer').innerHTML = file.type.startsWith('video/')
-            ? `<video src="${evt.target.result}" class="max-h-40 rounded-lg mx-auto" controls></video>`
-            : `<img src="${evt.target.result}" class="max-h-40 rounded-lg mx-auto object-cover">`;
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-
-    window.uploadStory = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = async (evt) => {
-          await addDoc(collection(db, "stories"), {
-            media: evt.target.result,
-            authorUid: window.currentUser.uid,
-            authorName: window.currentUserData.fullName || "User",
-            createdAt: serverTimestamp()
-          });
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-
-    window.handleLogout = async () => {
-      if (confirm("Log out of your account?")) {
-        await signOut(auth);
-        window.location.href = "login.html";
-      }
-    };
-
-    window.openCreateOptionsModal = () => document.getElementById('createOptionsModal').classList.remove('hidden');
-    window.closeCreateOptionsModal = () => document.getElementById('createOptionsModal').classList.add('hidden');
-    window.openCreatePostModal = (type) => {
-      window.closeCreateOptionsModal();
-      document.getElementById('modalTitle').innerText = type === 'reel' ? 'Create Reel' : 'Create Post';
-      document.getElementById('createPostModal').classList.remove('hidden');
-    };
-    window.closeCreatePostModal = () => document.getElementById('createPostModal').classList.add('hidden');
-    window.toggleMessageBox = () => document.getElementById('floatingMessageBox').classList.toggle('hidden');
   </script>
-</head>
-<body class="bg-black text-slate-100 min-h-screen font-sans select-none">
-
-  <!-- SIDEBAR -->
-  <aside class="hidden md:flex sidebar-collapsed fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex-col justify-between p-3 z-40 transition-all duration-300 overflow-hidden">
-    <div class="space-y-8">
-      <div class="px-2 pt-2 flex items-center space-x-3">
-        <img src="logo.png" alt="PulseIn Logo" class="h-8 w-8 object-contain flex-shrink-0">
-        <span class="font-bold text-lg text-white sidebar-text">PulseIn</span>
-      </div>
-
-      <nav class="space-y-4 text-sm font-medium">
-        <a href="index.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-white font-bold">
-          <i class="fa-solid fa-house text-xl w-6 text-center"></i><span class="sidebar-text">Home</span>
-        </a>
-        <a href="search.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-solid fa-magnifying-glass text-xl w-6 text-center"></i><span class="sidebar-text">Search</span>
-        </a>
-        <a href="explore.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-regular fa-compass text-xl w-6 text-center"></i><span class="sidebar-text">Explore</span>
-        </a>
-        <a href="reels.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-solid fa-clapperboard text-xl w-6 text-center"></i><span class="sidebar-text">Reels</span>
-        </a>
-        <a href="messages.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300 relative">
-          <i class="fa-regular fa-paper-plane text-xl w-6 text-center"></i><span class="sidebar-text">Messages</span>
-        </a>
-        <a href="notifications.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-regular fa-heart text-xl w-6 text-center"></i><span class="sidebar-text">Notifications</span>
-        </a>
-        <button onclick="openCreateOptionsModal()" class="w-full flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-regular fa-square-plus text-xl w-6 text-center"></i><span class="sidebar-text">Create</span>
-        </button>
-        <a href="profile.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-regular fa-user text-xl w-6 text-center"></i><span class="sidebar-text">Profile</span>
-        </a>
-      </nav>
-    </div>
-
-    <div class="space-y-1">
-      <a href="settings.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-        <i class="fa-solid fa-gear text-xl w-6 text-center"></i><span class="sidebar-text">Settings</span>
-      </a>
-      <button onclick="handleLogout()" class="w-full flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-red-500 font-bold">
-        <i class="fa-solid fa-right-from-bracket text-xl w-6 text-center"></i><span class="sidebar-text">Log Out</span>
-      </button>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTAINER -->
-  <div class="flex max-w-5xl mx-auto justify-between pt-4 px-2">
-    
-    <main class="flex-1 md:ml-20 lg:ml-24 lg:mr-80 max-w-[470px] mx-auto p-2 space-y-6">
-      
-      <!-- STORIES -->
-      <div class="flex space-x-4 overflow-x-auto pb-4 border-b border-neutral-900 scrollbar-none">
-        <label class="flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer">
-          <div class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 border-2 border-dashed border-yellow-400 flex items-center justify-center">
-            <img id="myStoryAvatar" src="profile.png" class="w-full h-full rounded-full object-cover" onerror="this.src='profile.png'">
-            <div class="absolute bottom-0 right-0 bg-blue-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-black">+</div>
-          </div>
-          <span class="text-[11px] text-neutral-400">Your story</span>
-          <input type="file" accept="image/*,video/*" class="hidden" onchange="uploadStory(event)">
-        </label>
-
-        <div id="storiesContainer" class="flex space-x-4"></div>
-      </div>
-
-      <!-- FEED POSTS -->
-      <div id="feedPostsContainer"></div>
-    </main>
-
-    <!-- RIGHT SIDEBAR (SUGGESTIONS & USER INFO) -->
-    <aside class="hidden lg:block w-80 fixed top-6 right-12 p-4 text-xs space-y-5">
-      <div id="myProfileLink" class="flex items-center justify-between cursor-pointer">
-        <div class="flex items-center space-x-3">
-          <img id="rightUserAvatar" src="profile.png" class="w-12 h-12 rounded-full object-cover border border-neutral-800" onerror="this.src='profile.png'">
-          <div>
-            <p id="rightUserHandle" class="font-bold text-white hover:underline">username</p>
-            <p id="rightUserName" class="text-neutral-400">User Full Name</p>
-          </div>
-        </div>
-        <button onclick="handleLogout()" class="text-red-500 hover:text-white font-bold">Log out</button>
-      </div>
-
-      <div class="flex items-center justify-between font-bold">
-        <span class="text-neutral-400">Suggested for you</span>
-        <button class="text-white hover:text-neutral-400">See all</button>
-      </div>
-
-      <!-- Dynamic Suggestions List -->
-      <div id="suggestedUsersContainer" class="space-y-3 max-h-72 overflow-y-auto custom-scroll"></div>
-
-      <div class="text-[11px] text-neutral-500 leading-relaxed pt-4 space-y-2">
-        <p>About • Help • Press • API • Jobs • Privacy • Terms • Locations • Language</p>
-        <p class="uppercase">© 2026 PulseIn FROM META</p>
-      </div>
-    </aside>
-
-  </div>
-
-  <!-- FLOATING MESSAGES BUTTON -->
-  <button onclick="toggleMessageBox()" class="fixed bottom-4 right-6 bg-[#121212] border border-neutral-800 px-4 py-2.5 rounded-2xl flex items-center space-x-3 shadow-2xl hover:bg-neutral-900 transition z-50">
-    <div class="relative">
-      <i class="fa-regular fa-paper-plane text-white text-base"></i>
-    </div>
-    <span class="text-xs font-bold text-white">Messages</span>
-  </button>
-
-  <!-- FLOATING MESSAGE POPUP BOX (Recent Chats) -->
-  <div id="floatingMessageBox" class="hidden fixed bottom-16 right-6 w-80 bg-[#121212] border border-neutral-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-neutral-800 bg-black">
-      <div class="flex items-center space-x-2">
-        <span class="text-sm font-bold text-white">Messages</span>
-      </div>
-      <div class="flex items-center space-x-3 text-neutral-400 text-sm">
-        <i class="fa-solid fa-expand hover:text-white cursor-pointer" onclick="window.location.href='messages.html'"></i>
-        <i class="fa-solid fa-xmark hover:text-white cursor-pointer" onclick="toggleMessageBox()"></i>
-      </div>
-    </div>
-    <div id="popupMessageUsersList" class="p-2 space-y-1 max-h-80 overflow-y-auto custom-scroll"></div>
-  </div>
-
-  <!-- GIF PICKER MODAL (50 GIFs Grid) -->
-  <div id="gifPickerModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-    <div class="bg-[#121212] border border-neutral-800 rounded-2xl w-full max-w-sm p-4 space-y-3">
-      <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-        <h3 class="text-xs font-bold text-white">Select a GIF</h3>
-        <button onclick="closeGifModal()" class="text-neutral-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div id="gifGridContainer" class="grid grid-cols-3 gap-2 max-h-80 overflow-y-auto custom-scroll p-1"></div>
-    </div>
-  </div>
-
-  <!-- CREATE OPTIONS MODAL -->
-  <div id="createOptionsModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-    <div class="bg-[#121212] border border-neutral-800 rounded-2xl w-full max-w-sm p-5 space-y-4 text-center">
-      <h3 class="text-xs font-bold text-white border-b border-neutral-800 pb-2">Select Creation Type</h3>
-      <div class="grid grid-cols-2 gap-4 pt-2">
-        <button onclick="openCreatePostModal('post')" class="p-4 border border-neutral-800 rounded-xl hover:bg-neutral-900 flex flex-col items-center space-y-2">
-          <i class="fa-regular fa-image text-2xl text-yellow-400"></i>
-          <span class="text-xs font-bold text-white">Create Post</span>
-        </button>
-        <button onclick="openCreatePostModal('reel')" class="p-4 border border-neutral-800 rounded-xl hover:bg-neutral-900 flex flex-col items-center space-y-2">
-          <i class="fa-solid fa-clapperboard text-2xl text-purple-500"></i>
-          <span class="text-xs font-bold text-white">Create Reel</span>
-        </button>
-      </div>
-      <button onclick="closeCreateOptionsModal()" class="text-xs text-neutral-400 pt-2 hover:underline">Cancel</button>
-    </div>
-  </div>
-
-  <!-- CREATE POST MODAL -->
-  <div id="createPostModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-    <div class="bg-[#121212] border border-neutral-800 rounded-2xl w-full max-w-md p-5 space-y-4">
-      <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-        <h3 id="modalTitle" class="text-xs font-bold text-white">Create New Post</h3>
-        <button onclick="closeCreatePostModal()" class="text-neutral-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div id="mediaPreviewContainer" class="w-full bg-neutral-900 p-2 border border-neutral-800 rounded-xl text-center"></div>
-
-      <textarea id="postInputText" rows="3" placeholder="Write caption..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400 resize-none"></textarea>
-
-      <div class="flex items-center justify-between pt-2 border-t border-neutral-800">
-        <label class="cursor-pointer text-xs text-yellow-400 flex items-center space-x-1.5 font-bold">
-          <i class="fa-regular fa-image text-base"></i>
-          <span>Add Photo/Video *</span>
-          <input type="file" accept="image/*,video/*" onchange="previewPostMedia(event)" class="hidden">
-        </label>
-        <button onclick="publishPost()" class="bg-blue-500 text-white font-bold px-5 py-1.5 rounded-xl text-xs hover:bg-blue-600">Share</button>
-      </div>
-    </div>
-  </div>
-
 </body>
 </html>

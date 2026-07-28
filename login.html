@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseIn — Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-black text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans select-none">
+
+  <!-- LOGIN CONTAINER -->
+  <div class="w-full max-w-md bg-[#121212] border border-neutral-800 rounded-3xl p-8 space-y-6 shadow-2xl">
+    
+    <!-- BRAND LOGO & HEADER -->
+    <div class="text-center space-y-2">
+      <img src="logo.png" alt="PulseIn Logo" class="w-14 h-14 mx-auto object-contain">
+      <h1 class="text-2xl font-bold tracking-wider text-white">PulseIn</h1>
+      <p class="text-xs text-neutral-400">Welcome back! Choose how you want to log in.</p>
+    </div>
+
+    <!-- 1. LAST LOGGED-IN ACCOUNT CARD -->
+    <div class="bg-[#1a1a1a] border border-neutral-800 p-4 rounded-2xl flex items-center justify-between hover:border-cyan-500/50 transition">
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 rounded-full bg-cyan-700 text-white font-bold flex items-center justify-center text-sm border border-neutral-700">
+          OB
+        </div>
+        <div>
+          <p class="text-sm font-bold text-white">oron.broh</p>
+          <p class="text-[11px] text-cyan-400">Last logged in on this device</p>
+        </div>
+      </div>
+      <a href="index.html" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
+        Log In
+      </a>
+    </div>
+
+    <div class="relative flex py-1 items-center">
+      <div class="flex-grow border-t border-neutral-800"></div>
+      <span class="flex-shrink mx-4 text-neutral-500 text-[11px] uppercase font-semibold">Or login with</span>
+      <div class="flex-grow border-t border-neutral-800"></div>
+    </div>
+
+    <!-- 2. LOGIN WITH GOOGLE BUTTON -->
+    <button onclick="handleGoogleLogin()" class="w-full flex items-center justify-center space-x-3 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-white font-medium py-3 rounded-2xl text-xs transition">
+      <i class="fa-brands fa-google text-red-400 text-base"></i>
+      <span>Continue with Google</span>
+    </button>
+
+    <!-- LOGIN METHOD TABS (PHONE vs EMAIL) -->
+    <div class="flex bg-neutral-900 p-1 rounded-2xl border border-neutral-800 text-xs font-semibold">
+      <button id="tabPhoneBtn" onclick="switchTab('phone')" class="flex-1 py-2 rounded-xl bg-cyan-600 text-white transition">
+        <i class="fa-brands fa-whatsapp text-emerald-400 mr-1"></i> Phone (WhatsApp)
+      </button>
+      <button id="tabEmailBtn" onclick="switchTab('email')" class="flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition">
+        <i class="fa-regular fa-envelope text-cyan-400 mr-1"></i> Email Code
+      </button>
+    </div>
+
+    <!-- 3. PHONE NUMBER (WHATSAPP OTP) FORM -->
+    <div id="phoneForm" class="space-y-4">
+      <div>
+        <label class="text-[11px] text-neutral-400 mb-1 block">Phone Number</label>
+        <div class="flex items-center bg-black border border-neutral-800 rounded-xl px-3 py-2.5 space-x-2 focus-within:border-cyan-500">
+          <span class="text-xs text-neutral-400 font-bold">+880</span>
+          <input type="tel" id="phoneInput" placeholder="1XXXXXXXXX" class="bg-transparent text-xs text-white focus:outline-none flex-1">
+        </div>
+      </div>
+
+      <button onclick="sendWhatsAppCode()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+        <i class="fa-brands fa-whatsapp text-base"></i>
+        <span>Send Code to WhatsApp</span>
+      </button>
+
+      <!-- OTP Input Box (Hidden initially) -->
+      <div id="phoneOtpBox" class="hidden space-y-3 pt-2 border-t border-neutral-800">
+        <p class="text-[11px] text-emerald-400 text-center"><i class="fa-solid fa-circle-check mr-1"></i> Code sent to your WhatsApp!</p>
+        <input type="text" placeholder="Enter 6-digit WhatsApp Code" class="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-center tracking-widest text-white focus:outline-none focus:border-emerald-500">
+        <a href="index.html" class="block text-center bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Verify & Login</a>
+      </div>
+    </div>
+
+    <!-- 4. DIRECT EMAIL OTP FORM -->
+    <div id="emailForm" class="hidden space-y-4">
+      <div>
+        <label class="text-[11px] text-neutral-400 mb-1 block">Email Address</label>
+        <input type="email" id="emailInput" placeholder="name@example.com" class="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <button onclick="sendEmailCode()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+        Send Code to Email
+      </button>
+
+      <!-- Email OTP Box (Hidden initially) -->
+      <div id="emailOtpBox" class="hidden space-y-3 pt-2 border-t border-neutral-800">
+        <p class="text-[11px] text-cyan-400 text-center"><i class="fa-solid fa-envelope-circle-check mr-1"></i> Verification code sent to your email!</p>
+        <input type="text" placeholder="Enter Verification Code" class="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-center tracking-widest text-white focus:outline-none focus:border-cyan-500">
+        <a href="index.html" class="block text-center bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Verify & Login</a>
+      </div>
+    </div>
+
+    <!-- FOOTER LINK -->
+    <div class="text-center text-[11px] text-neutral-500 pt-2">
+      Don't have an account? <a href="#" class="text-cyan-400 font-bold hover:underline">Sign up</a>
+    </div>
+
+  </div>
+
+  <!-- JAVASCRIPT FOR LOGIN LOGIC & TAB SWITCHING -->
+  <script>
+    function switchTab(type) {
+      const phoneBtn = document.getElementById('tabPhoneBtn');
+      const emailBtn = document.getElementById('tabEmailBtn');
+      const phoneForm = document.getElementById('phoneForm');
+      const emailForm = document.getElementById('emailForm');
+
+      if (type === 'phone') {
+        phoneBtn.className = "flex-1 py-2 rounded-xl bg-cyan-600 text-white transition";
+        emailBtn.className = "flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition";
+        phoneForm.classList.remove('hidden');
+        emailForm.classList.add('hidden');
+      } else {
+        emailBtn.className = "flex-1 py-2 rounded-xl bg-cyan-600 text-white transition";
+        phoneBtn.className = "flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition";
+        emailForm.classList.remove('hidden');
+        phoneForm.classList.add('hidden');
+      }
+    }
+
+    function handleGoogleLogin() {
+      alert("Redirecting to Google... A login confirmation message will be sent to your Gmail inbox.");
+      window.location.href = "index.html";
+    }
+
+    function sendWhatsAppCode() {
+      const phone = document.getElementById('phoneInput').value.trim();
+      if (!phone) {
+        alert("Please enter a valid phone number!");
+        return;
+      }
+      document.getElementById('phoneOtpBox').classList.remove('hidden');
+    }
+
+    function sendEmailCode() {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email) {
+        alert("Please enter a valid email address!");
+        return;
+      }
+      document.getElementById('emailOtpBox').classList.remove('hidden');
+    }
+  </script>
+
+</body>
+</html>

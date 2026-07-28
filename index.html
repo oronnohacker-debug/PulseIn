@@ -7,8 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    /* Custom Scrollbar for Dark Theme */
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #000; }
     ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
   </style>
@@ -19,13 +18,13 @@
   <aside class="w-64 fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex flex-col justify-between p-4 z-40">
     <div class="space-y-6">
       
-      <!-- Logo -->
+      <!-- LOGO -->
       <a href="index.html" class="flex items-center space-x-3 px-2 py-1">
         <img src="logo.png" alt="PulseIn Logo" class="w-10 h-10 object-contain">
         <span class="text-xl font-bold tracking-wider text-white">PulseIn</span>
       </a>
 
-      <!-- Menu Options -->
+      <!-- MENU OPTIONS -->
       <nav class="space-y-1">
         <a href="index.html" class="flex items-center space-x-4 p-3 rounded-xl bg-neutral-900 text-cyan-400 font-bold">
           <i class="fa-solid fa-house text-xl w-6 text-center"></i>
@@ -34,6 +33,11 @@
         <a href="search.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-slate-300 transition">
           <i class="fa-solid fa-magnifying-glass text-xl w-6 text-center"></i>
           <span class="text-sm">Search</span>
+        </a>
+        <!-- REELS WATCH OPTION -->
+        <a href="reels.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-slate-300 transition">
+          <i class="fa-solid fa-clapperboard text-xl w-6 text-center"></i>
+          <span class="text-sm">Reels</span>
         </a>
         <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-slate-300 transition">
           <i class="fa-regular fa-paper-plane text-xl w-6 text-center"></i>
@@ -54,8 +58,12 @@
       </nav>
     </div>
 
-    <!-- Log Out -->
-    <div class="border-t border-neutral-800 pt-3">
+    <!-- BOTTOM SETTINGS & LOG OUT -->
+    <div class="border-t border-neutral-800 pt-3 space-y-1">
+      <a href="settings.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-slate-300 font-medium transition">
+        <i class="fa-solid fa-gear text-xl w-6 text-center"></i>
+        <span class="text-sm">Settings</span>
+      </a>
       <a href="login.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-red-500 font-semibold transition">
         <i class="fa-solid fa-right-from-bracket text-xl w-6 text-center"></i>
         <span class="text-sm">Log Out</span>
@@ -63,96 +71,94 @@
     </div>
   </aside>
 
-  <!-- 2. MAIN CONTENT WRAPPER -->
-  <div class="pl-64 flex-1 flex justify-center max-w-7xl mx-auto px-6 py-8 gap-12">
+  <!-- 2. MAIN FEED AREA -->
+  <div class="pl-64 flex-1 flex justify-center max-w-7xl mx-auto px-6 py-6 gap-12">
 
-    <!-- CENTER FEED AREA -->
     <main class="w-full max-w-lg space-y-6">
 
-      <!-- Create Post Box -->
+      <!-- STORIES CAROUSEL SECTION -->
+      <div class="flex space-x-4 overflow-x-auto pb-3 border-b border-neutral-800 items-center">
+        <!-- Add Story -->
+        <a href="create-story.html" class="flex-shrink-0 text-center cursor-pointer group">
+          <div class="w-16 h-16 rounded-full border-2 border-dashed border-cyan-400 p-0.5 flex items-center justify-center bg-neutral-900 group-hover:scale-105 transition">
+            <i class="fa-solid fa-plus text-cyan-400 text-xl"></i>
+          </div>
+          <span class="text-[11px] text-slate-300 font-medium mt-1 block">Your Story</span>
+        </a>
+      </div>
+
+      <!-- CREATE POST / REELS BOX -->
       <div class="bg-[#121212] border border-neutral-800 rounded-2xl p-4 space-y-3 shadow-lg">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-full bg-cyan-700 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">
+          <a href="profile.html" class="w-10 h-10 rounded-full bg-cyan-700 text-white font-bold flex items-center justify-center text-xs flex-shrink-0">
             OB
-          </div>
+          </a>
           <input type="text" id="postInputText" placeholder="What's on your mind?" class="w-full bg-black border border-neutral-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-cyan-500 text-white placeholder-neutral-500">
         </div>
 
-        <div id="imagePreviewContainer" class="hidden relative rounded-xl overflow-hidden max-h-60 border border-neutral-800">
-          <img id="imagePreview" src="" class="w-full object-cover">
-          <button onclick="removeImage()" class="absolute top-2 right-2 bg-black/80 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs"><i class="fa-solid fa-xmark"></i></button>
+        <!-- MEDIA PREVIEWS -->
+        <div id="mediaPreviewContainer" class="hidden relative rounded-xl overflow-hidden max-h-72 border border-neutral-800">
+          <img id="imagePreview" class="hidden w-full object-cover">
+          <video id="videoPreview" controls class="hidden w-full max-h-72 bg-black"></video>
+          <button onclick="removeMedia()" class="absolute top-2 right-2 bg-black/80 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs z-10"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
+        <!-- UPLOAD OPTIONS -->
         <div class="flex items-center justify-between pt-2 border-t border-neutral-800">
-          <label class="cursor-pointer hover:text-cyan-400 flex items-center space-x-1.5 text-neutral-400 text-xs transition">
-            <i class="fa-regular fa-image text-base text-cyan-500"></i>
-            <span>Photo</span>
-            <input type="file" id="postPhotoInput" accept="image/*" onchange="previewSelectedImage(event)" class="hidden">
-          </label>
+          <div class="flex space-x-4 text-xs">
+            <!-- Photo Upload -->
+            <label class="cursor-pointer hover:text-cyan-400 flex items-center space-x-1.5 text-neutral-400 transition">
+              <i class="fa-regular fa-image text-base text-cyan-500"></i>
+              <span>Photo</span>
+              <input type="file" id="postPhotoInput" accept="image/*" onchange="previewSelectedMedia(event, 'image')" class="hidden">
+            </label>
+            <!-- Video/Reels Upload -->
+            <label class="cursor-pointer hover:text-cyan-400 flex items-center space-x-1.5 text-neutral-400 transition">
+              <i class="fa-solid fa-video text-base text-cyan-500"></i>
+              <span>Reels / Video</span>
+              <input type="file" id="postVideoInput" accept="video/*" onchange="previewSelectedMedia(event, 'video')" class="hidden">
+            </label>
+          </div>
+
           <button onclick="createNewPost()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-1.5 rounded-xl text-xs transition">Post</button>
         </div>
       </div>
 
-      <!-- Posts Container -->
-      <div id="feedPostsContainer" class="space-y-6">
-        <!-- New posts will appear here -->
-      </div>
+      <!-- FEED POSTS CONTAINER -->
+      <div id="feedPostsContainer" class="space-y-6"></div>
 
     </main>
 
-    <!-- 3. RIGHT SIDEBAR (SUGGESTIONS ARE BACK!) -->
+    <!-- 3. RIGHT SIDEBAR -->
     <aside class="hidden lg:block w-72 space-y-6">
-      <!-- Your Profile Switcher -->
+      
+      <!-- USER PROFILE LINK (CLICKABLE NOW) -->
       <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-11 h-11 rounded-full bg-cyan-700 text-white font-bold flex items-center justify-center text-sm">
+        <a href="profile.html" class="flex items-center space-x-3 group">
+          <div class="w-11 h-11 rounded-full bg-cyan-700 text-white font-bold flex items-center justify-center text-sm border border-neutral-700 group-hover:border-cyan-400 transition">
             OB
           </div>
           <div>
-            <p class="text-sm font-bold text-slate-100">oron.broh</p>
+            <p class="text-sm font-bold text-slate-100 group-hover:text-cyan-400 transition">oron.broh</p>
             <p class="text-xs text-neutral-400">Oronno</p>
           </div>
-        </div>
-        <a href="#" class="text-xs font-bold text-cyan-500 hover:text-cyan-400 transition">Switch</a>
+        </a>
+        <a href="login.html" class="text-xs font-bold text-cyan-500 hover:text-cyan-400 transition">Switch</a>
       </div>
 
-      <!-- Suggested for you -->
-      <div class="space-y-4">
+      <!-- SUGGESTIONS SECTION (CLEAN & NO FAKE PEOPLE) -->
+      <div class="space-y-3">
         <div class="flex justify-between items-center">
           <span class="text-xs font-bold text-neutral-400">Suggested for you</span>
-          <a href="#" class="text-xs font-bold text-white hover:text-neutral-300">See All</a>
         </div>
 
-        <!-- Suggestion Item 1 (No fake photo, just SVG icon) -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-500">
-              <i class="fa-solid fa-user text-sm"></i>
-            </div>
-            <div>
-              <p class="text-xs font-bold text-slate-200">new_user_99</p>
-              <p class="text-[11px] text-neutral-500">New to PulseIn</p>
-            </div>
-          </div>
-          <button class="text-xs font-bold text-cyan-500 hover:text-cyan-400">Follow</button>
-        </div>
-
-        <!-- Suggestion Item 2 (No fake photo, just SVG icon) -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-500">
-              <i class="fa-solid fa-user text-sm"></i>
-            </div>
-            <div>
-              <p class="text-xs font-bold text-slate-200">code.ninja</p>
-              <p class="text-[11px] text-neutral-500">Suggested for you</p>
-            </div>
-          </div>
-          <button class="text-xs font-bold text-cyan-500 hover:text-cyan-400">Follow</button>
+        <div class="p-4 bg-[#121212] border border-neutral-800 rounded-2xl text-center space-y-2">
+          <i class="fa-solid fa-user-plus text-neutral-600 text-xl"></i>
+          <p class="text-xs text-neutral-400">No suggestions available yet.</p>
+          <a href="search.html" class="inline-block text-xs font-bold text-cyan-500 hover:underline">Search People</a>
         </div>
       </div>
       
-      <!-- Footer links -->
       <div class="text-[11px] text-neutral-600 mt-6 space-y-2">
         <p>About · Help · Press · API · Jobs · Privacy · Terms</p>
         <p>© 2026 PULSEIN BY ORONNO</p>
@@ -161,13 +167,13 @@
 
   </div>
 
-  <!-- FLOATING CHAT BUTTON (Bottom Right) -->
+  <!-- FLOATING MESSAGES BUTTON -->
   <div onclick="toggleChatPopup()" class="fixed bottom-6 right-6 z-40 flex items-center space-x-3 bg-[#1a1a1a] border border-neutral-700 px-5 py-3 rounded-full shadow-2xl cursor-pointer hover:bg-neutral-800 transition text-white">
     <i class="fa-regular fa-paper-plane text-cyan-400 text-lg"></i>
     <span class="text-xs font-bold">Messages</span>
   </div>
 
-  <!-- FLOATING CHAT POPUP (Drawer) -->
+  <!-- FLOATING CHAT POPUP DRAWER -->
   <div id="chatDrawerPopup" class="hidden fixed bottom-20 right-6 z-50 w-80 h-96 bg-[#121212] border border-neutral-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
     <div class="p-4 border-b border-neutral-800 flex justify-between items-center bg-black">
       <h3 class="font-bold text-sm text-white">Messages</h3>
@@ -182,36 +188,50 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    let selectedImageBase64 = "";
+    let selectedMediaURL = "";
+    let mediaType = ""; // 'image' or 'video'
 
     function toggleChatPopup() {
       document.getElementById('chatDrawerPopup').classList.toggle('hidden');
     }
 
-    function previewSelectedImage(event) {
+    function previewSelectedMedia(event, type) {
       const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          selectedImageBase64 = e.target.result;
-          document.getElementById('imagePreview').src = selectedImageBase64;
-          document.getElementById('imagePreviewContainer').classList.remove('hidden');
+        mediaType = type;
+        selectedMediaURL = URL.createObjectURL(file);
+        
+        const container = document.getElementById('mediaPreviewContainer');
+        const img = document.getElementById('imagePreview');
+        const video = document.getElementById('videoPreview');
+
+        container.classList.remove('hidden');
+
+        if (type === 'image') {
+          video.classList.add('hidden');
+          img.src = selectedMediaURL;
+          img.classList.remove('hidden');
+        } else if (type === 'video') {
+          img.classList.add('hidden');
+          video.src = selectedMediaURL;
+          video.classList.remove('hidden');
         }
-        reader.readAsDataURL(file);
       }
     }
 
-    function removeImage() {
-      selectedImageBase64 = "";
+    function removeMedia() {
+      selectedMediaURL = "";
+      mediaType = "";
       document.getElementById('postPhotoInput').value = "";
-      document.getElementById('imagePreviewContainer').classList.add('hidden');
+      document.getElementById('postVideoInput').value = "";
+      document.getElementById('mediaPreviewContainer').classList.add('hidden');
     }
 
     function createNewPost() {
       const text = document.getElementById('postInputText').value.trim();
       
-      if (!text && !selectedImageBase64) {
-        alert("Please write something or select a photo!");
+      if (!text && !selectedMediaURL) {
+        alert("Please write something or upload a video/photo!");
         return;
       }
 
@@ -219,20 +239,27 @@
       const postCard = document.createElement('div');
       postCard.className = "bg-[#121212] border border-neutral-800 rounded-2xl p-4 space-y-3 shadow-sm";
 
-      let imageHTML = selectedImageBase64 ? `<img src="${selectedImageBase64}" class="w-full rounded-xl object-cover max-h-96 border border-neutral-800 mt-2">` : '';
+      let mediaHTML = '';
+      if (selectedMediaURL) {
+        if (mediaType === 'image') {
+          mediaHTML = `<img src="${selectedMediaURL}" class="w-full rounded-xl object-cover max-h-96 border border-neutral-800 mt-2">`;
+        } else if (mediaType === 'video') {
+          mediaHTML = `<video src="${selectedMediaURL}" controls class="w-full rounded-xl max-h-96 border border-neutral-800 mt-2 bg-black"></video>`;
+        }
+      }
 
       postCard.innerHTML = `
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-full bg-cyan-700 text-white font-bold flex items-center justify-center text-xs">
+          <a href="profile.html" class="w-10 h-10 rounded-full bg-cyan-700 text-white font-bold flex items-center justify-center text-xs">
             OB
-          </div>
+          </a>
           <div>
-            <p class="text-xs font-bold text-white">oron.broh</p>
+            <a href="profile.html" class="text-xs font-bold text-white hover:underline">oron.broh</a>
             <p class="text-[10px] text-neutral-400">Just now</p>
           </div>
         </div>
         ${text ? `<p class="text-xs text-slate-200 leading-relaxed">${text}</p>` : ''}
-        ${imageHTML}
+        ${mediaHTML}
         <div class="flex items-center space-x-6 pt-3 border-t border-neutral-800 text-neutral-400 text-sm mt-3">
           <button class="hover:text-red-500 flex items-center space-x-1.5 transition"><i class="fa-regular fa-heart"></i><span class="text-xs">0</span></button>
           <button class="hover:text-cyan-500 flex items-center space-x-1.5 transition"><i class="fa-regular fa-comment"></i><span class="text-xs">0</span></button>
@@ -243,7 +270,7 @@
       feed.prepend(postCard);
 
       document.getElementById('postInputText').value = "";
-      removeImage();
+      removeMedia();
     }
   </script>
 

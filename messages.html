@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages — PulseIn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-black text-slate-100 h-screen flex overflow-hidden font-sans">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-20 lg:w-64 border-r border-slate-800 p-4 flex flex-col justify-between">
+    <div class="space-y-6">
+      <a href="index.html" class="flex items-center space-x-3 text-cyan-400 px-2">
+        <i class="fa-solid fa-bolt text-2xl"></i>
+        <span class="hidden lg:inline text-xl font-bold tracking-wider text-white">PulseIn</span>
+      </a>
+      <nav class="space-y-2">
+        <a href="index.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 text-slate-300">
+          <i class="fa-solid fa-house text-xl w-6"></i><span class="hidden lg:inline text-sm">Home</span>
+        </a>
+        <a href="search.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 text-slate-300">
+          <i class="fa-solid fa-magnifying-glass text-xl w-6"></i><span class="hidden lg:inline text-sm">Search</span>
+        </a>
+        <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-xl bg-slate-900 text-cyan-400 font-bold">
+          <i class="fa-paper-plane text-xl w-6"></i><span class="hidden lg:inline text-sm">Messages</span>
+        </a>
+        <a href="notifications.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 text-slate-300">
+          <i class="fa-regular fa-heart text-xl w-6"></i><span class="hidden lg:inline text-sm">Notifications</span>
+        </a>
+        <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 text-slate-300">
+          <i class="fa-regular fa-user text-xl w-6"></i><span class="hidden lg:inline text-sm">Profile</span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MESSAGES CONTENT AREA -->
+  <div class="flex-1 flex">
+
+    <!-- CHAT LIST & NOTES COLUMN -->
+    <div class="w-full sm:w-80 lg:w-96 border-r border-slate-800 flex flex-col">
+      <!-- User ID Header -->
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+        <span class="font-bold text-base">oron.broh <i class="fa-solid fa-chevron-down text-xs ml-1"></i></span>
+        <i class="fa-regular fa-pen-to-square text-lg cursor-pointer"></i>
+      </div>
+
+      <!-- INSTAGRAM NOTES SECTION -->
+      <div class="p-4 border-b border-slate-800 overflow-x-auto flex space-x-4 bg-slate-950/40">
+        <!-- My Note Creator -->
+        <div class="flex flex-col items-center flex-shrink-0 cursor-pointer group" onclick="openNoteModal()">
+          <div class="relative mb-1">
+            <div class="absolute -top-6 bg-slate-800 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 whitespace-nowrap text-cyan-300">
+              <i class="fa-solid fa-music text-[8px] mr-1"></i>Add Note...
+            </div>
+            <img src="https://i.pravatar.cc/100?img=33" class="w-14 h-14 rounded-full border border-slate-700">
+            <div class="absolute bottom-0 right-0 bg-cyan-500 rounded-full w-4 h-4 flex items-center justify-center text-black text-[10px] font-bold">+</div>
+          </div>
+          <span class="text-[10px] text-slate-400">Your note</span>
+        </div>
+
+        <!-- Friend Note 1 -->
+        <div class="flex flex-col items-center flex-shrink-0 cursor-pointer">
+          <div class="relative mb-1">
+            <div class="absolute -top-6 bg-slate-800 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 whitespace-nowrap text-slate-200">
+              🎧 Astronomy vibes ✨
+            </div>
+            <img src="https://i.pravatar.cc/100?img=12" class="w-14 h-14 rounded-full border border-slate-700">
+          </div>
+          <span class="text-[10px] text-slate-400">adeeb_1st</span>
+        </div>
+      </div>
+
+      <!-- CHAT CONVERSATIONS LIST -->
+      <div class="flex-1 overflow-y-auto p-2 space-y-1">
+        <div class="flex items-center space-x-3 p-3 rounded-2xl bg-slate-900 cursor-pointer">
+          <img src="https://i.pravatar.cc/100?img=1" class="w-12 h-12 rounded-full">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold truncate">Lu Lu Gang 🔷</p>
+            <p class="text-[11px] text-cyan-400 truncate">Sent a voice message • 1h</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN ACTIVE CHAT BOX -->
+    <div class="hidden sm:flex flex-1 flex-col justify-between bg-slate-950">
+      <!-- Chat Header (Audio / Video Call Buttons) -->
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-black/50">
+        <div class="flex items-center space-x-3">
+          <img src="https://i.pravatar.cc/100?img=1" class="w-10 h-10 rounded-full">
+          <div>
+            <h4 class="text-xs font-bold">Lu Lu Gang 🔷</h4>
+            <span class="text-[10px] text-emerald-400">Active Now (Global Network)</span>
+          </div>
+        </div>
+        <div class="flex space-x-5 text-xl text-slate-300">
+          <i class="fa-solid fa-phone cursor-pointer hover:text-cyan-400"></i>
+          <i class="fa-solid fa-video cursor-pointer hover:text-cyan-400"></i>
+          <i class="fa-solid fa-circle-info cursor-pointer hover:text-cyan-400"></i>
+        </div>
+      </div>
+
+      <!-- Chat Messages Body -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="flex justify-start">
+          <div class="bg-slate-800 px-4 py-2.5 rounded-2xl text-xs max-w-xs">Hey man! How is PulseIn project going?</div>
+        </div>
+        <div class="flex justify-end">
+          <div class="bg-cyan-600 px-4 py-2.5 rounded-2xl text-xs max-w-xs text-white">Super smooth! Global real-time messaging is live 🔥</div>
+        </div>
+      </div>
+
+      <!-- Media & Voice Action Chat Input Bar -->
+      <div class="p-4 border-t border-slate-800 bg-black">
+        <div class="flex items-center bg-slate-900 border border-slate-800 rounded-full px-4 py-2 space-x-3">
+          <i class="fa-regular fa-face-smile text-slate-400 text-lg cursor-pointer hover:text-white"></i>
+          <input type="text" placeholder="Message..." class="flex-1 bg-transparent text-xs focus:outline-none">
+          
+          <!-- Attach Photo/Video -->
+          <label class="cursor-pointer text-slate-400 hover:text-cyan-400">
+            <i class="fa-regular fa-image text-lg"></i>
+            <input type="file" accept="image/*,video/*" class="hidden">
+          </label>
+
+          <!-- Voice Note -->
+          <i class="fa-solid fa-microphone text-slate-400 text-lg cursor-pointer hover:text-red-400"></i>
+
+          <!-- Stickers -->
+          <i class="fa-regular fa-note-sticky text-slate-400 text-lg cursor-pointer hover:text-yellow-400"></i>
+
+          <button class="text-cyan-400 font-bold text-xs hover:text-white">Send</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NOTE MODAL (Add Music, Text & Emoji) -->
+  <div id="noteModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 space-y-4 text-center">
+      <h3 class="font-bold text-sm text-cyan-400">Share a Note</h3>
+      
+      <div class="relative w-20 h-20 mx-auto">
+        <img src="https://i.pravatar.cc/100?img=33" class="w-full h-full rounded-full border-2 border-cyan-400">
+      </div>
+
+      <input type="text" placeholder="Share a thought..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs focus:outline-none text-center">
+
+      <div class="flex items-center justify-center space-x-2 bg-slate-800/60 p-2 rounded-xl text-xs text-slate-300">
+        <i class="fa-solid fa-music text-pink-400"></i>
+        <span>Add Song Audio</span>
+        <input type="file" accept="audio/*" class="text-[10px] w-36">
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2">
+        <button onclick="closeNoteModal()" class="px-4 py-2 bg-slate-800 text-xs rounded-xl">Cancel</button>
+        <button onclick="closeNoteModal()" class="px-4 py-2 bg-cyan-500 text-black font-bold text-xs rounded-xl">Share</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openNoteModal() { document.getElementById('noteModal').classList.remove('hidden'); }
+    function closeNoteModal() { document.getElementById('noteModal').classList.add('hidden'); }
+  </script>
+</body>
+</html>

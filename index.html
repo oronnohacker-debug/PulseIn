@@ -23,35 +23,62 @@
   <div class="flex min-h-screen">
 
     <!-- LEFT SIDEBAR -->
-    <aside class="w-20 xl:w-64 border-r border-neutral-800 p-3 xl:p-5 flex flex-col justify-between fixed h-full bg-black z-30 left-0 top-0">
+    <aside class="w-20 xl:w-64 border-r border-neutral-800 p-3 xl:px-4 xl:py-6 flex flex-col justify-between fixed h-full bg-black z-30 left-0 top-0">
       <div class="space-y-6">
-        <h1 class="text-xl font-bold text-white hidden xl:block px-3 py-2 font-serif italic tracking-wider">PulseIn</h1>
-        <div class="text-2xl font-bold text-white xl:hidden text-center py-2"><i class="fa-brands fa-instagram"></i></div>
+        <!-- LOGO -->
+        <div class="px-3 py-2 cursor-pointer" onclick="window.location.href='index.html'">
+          <h1 class="text-2xl font-bold text-white hidden xl:block font-serif italic tracking-wider">PulseIn</h1>
+          <div class="text-2xl font-bold text-white xl:hidden text-center"><i class="fa-brands fa-instagram"></i></div>
+        </div>
 
+        <!-- NAVIGATION OPTIONS -->
         <nav class="space-y-1">
-          <a href="index.html" class="flex items-center space-x-4 p-3 rounded-lg bg-neutral-900 text-white font-bold">
-            <i class="fa-solid fa-house text-xl"></i>
+          <a href="index.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-white font-bold transition">
+            <i class="fa-solid fa-house text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Home</span>
           </a>
-          <a href="search.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-white transition">
-            <i class="fa-solid fa-magnifying-glass text-xl"></i>
+          <a href="search.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-solid fa-magnifying-glass text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Search</span>
           </a>
-          <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-white transition">
-            <i class="fa-regular fa-paper-plane text-xl"></i>
+          <a href="#" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-regular fa-compass text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Explore</span>
+          </a>
+          <a href="#" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-solid fa-clapperboard text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Reels</span>
+          </a>
+          <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition relative">
+            <i class="fa-regular fa-paper-plane text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Messages</span>
           </a>
-          <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-white transition">
-            <img id="navMyAvatar" src="profile.png" class="w-6 h-6 rounded-full object-cover" onerror="this.src='profile.png'">
+          <a href="#" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-regular fa-heart text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Notifications</span>
+          </a>
+          <a href="#" id="btnCreatePost" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-regular fa-square-plus text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Create</span>
+          </a>
+          <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <img id="navMyAvatar" src="profile.png" class="w-6 h-6 rounded-full object-cover border border-neutral-700" onerror="this.src='profile.png'">
             <span class="hidden xl:inline text-sm">Profile</span>
           </a>
         </nav>
       </div>
 
-      <button id="logoutBtn" class="flex items-center space-x-4 p-3 rounded-lg text-red-500 hover:bg-neutral-900 transition w-full">
-        <i class="fa-solid fa-right-from-bracket text-xl"></i>
-        <span class="hidden xl:inline text-sm font-bold">Logout</span>
-      </button>
+      <!-- BOTTOM SIDEBAR OPTIONS -->
+      <div class="space-y-1">
+        <button id="moreBtn" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full">
+          <i class="fa-solid fa-bars text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline text-sm">More</span>
+        </button>
+        <button id="logoutBtn" class="flex items-center space-x-4 p-3 rounded-lg text-red-500 hover:bg-neutral-900 transition w-full">
+          <i class="fa-solid fa-right-from-bracket text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline text-sm font-bold">Logout</span>
+        </button>
+      </div>
     </aside>
 
     <!-- CENTER CONTENT AREA -->
@@ -107,6 +134,7 @@
             <p id="sideMyName" class="text-neutral-500 text-[11px]">User Name</p>
           </div>
         </div>
+        <button class="text-blue-500 hover:text-white font-bold text-xs transition">Switch</button>
       </div>
 
       <div class="space-y-4">
@@ -116,7 +144,497 @@
         </div>
         <div id="suggestedUsersContainer" class="space-y-3"></div>
       </div>
+
+      <!-- FOOTER LINKS -->
+      <div class="text-[11px] text-neutral-600 space-y-2 pt-4 border-t border-neutral-900">
+        <p>About · Help · Press · API · Jobs · Privacy · Terms · Locations · Language · Meta Verified</p>
+        <p>© 2026 PULSEIN FROM META</p>
+      </div>
     </aside>
+
+    <!-- FLOATING MESSAGE BOX (BOTTOM RIGHT LIKE INSTAGRAM WEB) -->
+    <div onclick="window.location.href='messages.html'" class="fixed bottom-4 right-4 bg-neutral-900 border border-neutral-800 rounded-2xl px-4 py-2.5 flex items-center space-x-3 cursor-pointer hover:bg-neutral-800 transition z-40 shadow-xl">
+      <div class="relative">
+        <i class="fa-regular fa-paper-plane text-white text-lg"></i>
+      </div>
+      <span class="text-xs font-bold text-white">Messages</span>
+      <div class="flex -space-x-2 overflow-hidden ml-2">
+        <span class="w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-neutral-900"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FIREBASE LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, collection, doc, getDoc, getDocs, onSnapshot, query, orderBy, addDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCPjBq74KCEgeO4MK6EZFjMuA3ju3s3Wpc",
+      authDomain: "echoo-325d4.firebaseapp.com",
+      projectId: "echoo-325d4",
+      storageBucket: "echoo-325d4.firebasestorage.app",
+      messagingSenderId: "694671555312",
+      appId: "1:694671555312:web:12b3bdf72ff02943eba035"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const DEFAULT_AVATAR = "profile.png";
+    window.allUsersMap = {};
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        window.currentUser = user;
+        await fetchAllUsers();
+        await fetchCurrentUserData();
+
+        listenToStories();
+        listenToRealtimePosts();
+        listenToRegisteredUsersSuggestions();
+      }
+    });
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.onclick = () => signOut(auth);
+
+    const myStoryBtn = document.getElementById('myStoryBtn');
+    const storyInput = document.getElementById('storyInput');
+    if (myStoryBtn && storyInput) {
+      myStoryBtn.onclick = () => storyInput.click();
+      storyInput.onchange = (e) => uploadStory(e);
+    }
+
+    const btnScrollLeft = document.getElementById('btnScrollLeft');
+    const btnScrollRight = document.getElementById('btnScrollRight');
+    const storiesWrapper = document.getElementById('storiesWrapper');
+
+    if (btnScrollLeft && storiesWrapper) {
+      btnScrollLeft.onclick = () => storiesWrapper.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+    if (btnScrollRight && storiesWrapper) {
+      btnScrollRight.onclick = () => storiesWrapper.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+
+    async function fetchAllUsers() {
+      const snap = await getDocs(collection(db, "users"));
+      snap.forEach(docSnap => {
+        window.allUsersMap[docSnap.id] = docSnap.data();
+      });
+    }
+
+    async function fetchCurrentUserData() {
+      const docSnap = await getDoc(doc(db, "users", window.currentUser.uid));
+      if (docSnap.exists()) {
+        window.currentUserData = docSnap.data();
+        const avatar = window.currentUserData.photoURL || DEFAULT_AVATAR;
+        const name = window.currentUserData.fullName || "User";
+        const username = window.currentUserData.username || "user";
+
+        if (document.getElementById('navMyAvatar')) document.getElementById('navMyAvatar').src = avatar;
+        if (document.getElementById('myStoryAvatar')) document.getElementById('myStoryAvatar').src = avatar;
+        if (document.getElementById('sideMyAvatar')) document.getElementById('sideMyAvatar').src = avatar;
+        if (document.getElementById('sideMyName')) document.getElementById('sideMyName').innerText = name;
+        if (document.getElementById('sideMyUsername')) document.getElementById('sideMyUsername').innerText = username;
+      }
+    }
+
+    async function uploadStory(event) {
+      const file = event.target.files[0];
+      if (!file || !window.currentUser) return;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          await addDoc(collection(db, "stories"), {
+            authorUid: window.currentUser.uid,
+            authorName: window.currentUserData?.fullName || "User",
+            media: e.target.result,
+            createdAt: serverTimestamp()
+          });
+          alert("Story uploaded successfully!");
+        } catch (error) {
+          alert("Failed to upload story.");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function listenToStories() {
+      const myUid = window.currentUser.uid;
+      const myFollowing = window.currentUserData?.following || [];
+
+      const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
+      onSnapshot(q, (snapshot) => {
+        const container = document.getElementById('storiesContainer');
+        if (!container) return;
+        container.innerHTML = "";
+
+        snapshot.forEach((docSnap) => {
+          const s = docSnap.data();
+          const storyId = docSnap.id;
+          const authorUser = window.allUsersMap[s.authorUid] || {};
+
+          if (s.authorUid === myUid) return;
+          if (!myFollowing.includes(s.authorUid)) return;
+          if (authorUser.isPrivate && !myFollowing.includes(s.authorUid)) return;
+
+          const authorAvatar = authorUser.photoURL || DEFAULT_AVATAR;
+          const authorName = authorUser.username || authorUser.fullName || s.authorName || 'user';
+
+          const storyDiv = document.createElement('div');
+          storyDiv.className = "flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer";
+          storyDiv.onclick = () => window.location.href = `story.html?storyId=${storyId}`;
+
+          storyDiv.innerHTML = `
+            <div class="w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 hover:scale-105 transition transform">
+              <img src="${authorAvatar}" class="w-full h-full rounded-full object-cover border border-black" onerror="this.src='${DEFAULT_AVATAR}'">
+            </div>
+            <span class="text-[11px] text-neutral-300 truncate w-14 text-center">${authorName}</span>
+          `;
+          container.appendChild(storyDiv);
+        });
+      });
+    }
+
+    function listenToRealtimePosts() {
+      const myUid = window.currentUser.uid;
+      const myFollowing = window.currentUserData?.following || [];
+
+      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+      onSnapshot(q, (snapshot) => {
+        const feed = document.getElementById('feedPostsContainer');
+        if (!feed) return;
+        feed.innerHTML = "";
+
+        let visibleCount = 0;
+
+        snapshot.forEach((docSnap) => {
+          const post = docSnap.data();
+          const postId = docSnap.id;
+          const authorUser = window.allUsersMap[post.authorUid] || {};
+
+          if (authorUser.isPrivate && !myFollowing.includes(post.authorUid) && post.authorUid !== myUid) {
+            return;
+          }
+
+          const shouldShow = myFollowing.length === 0 || post.authorUid === myUid || myFollowing.includes(post.authorUid) || !authorUser.isPrivate;
+
+          if (shouldShow) {
+            visibleCount++;
+            const isLiked = post.likes && post.likes.includes(myUid);
+            const likeCount = post.likes ? post.likes.length : 0;
+            const authorPhoto = authorUser.photoURL || DEFAULT_AVATAR;
+            const authorName = authorUser.username || authorUser.fullName || post.authorName || 'user';
+
+            let mediaHTML = "";
+            if (post.media) {
+              if (post.mediaType && post.mediaType.startsWith('video/')) {
+                mediaHTML = `<video src="${post.media}" controls class="w-full rounded-md max-h-[580px] object-cover mt-2 border border-neutral-900"></video>`;
+              } else {
+                mediaHTML = `<img src="${post.media}" class="w-full rounded-md max-h-[580px] object-cover mt-2 border border-neutral-900">`;
+              }
+            }
+
+            const postCard = document.createElement('div');
+            postCard.className = "border-b border-neutral-800 pb-5 mb-4 space-y-3 w-full";
+            postCard.innerHTML = `
+              <div class="flex items-center justify-between px-1">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html?uid=${post.authorUid}'">
+                  <div class="p-[1.5px] bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full">
+                    <img src="${authorPhoto}" class="w-8 h-8 rounded-full object-cover border border-black" onerror="this.src='${DEFAULT_AVATAR}'">
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <h4 class="text-xs font-bold text-white hover:underline">${authorName}</h4>
+                  </div>
+                </div>
+              </div>
+
+              ${mediaHTML}
+
+              <div class="flex items-center justify-between pt-1 text-white text-lg px-1">
+                <div class="flex items-center space-x-4">
+                  <button onclick="window.toggleLikeFirebase('${postId}', ${isLiked})" class="${isLiked ? 'text-red-500' : 'hover:text-neutral-400'} transition">
+                    <i class="${isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i>
+                  </button>
+                  <i class="fa-regular fa-comment hover:text-neutral-400 cursor-pointer"></i>
+                  <i class="fa-regular fa-paper-plane hover:text-neutral-400 cursor-pointer"></i>
+                </div>
+              </div>
+              <p class="text-xs font-bold text-white px-1">${likeCount} likes</p>
+              ${post.text ? `<p class="text-xs text-neutral-200 px-1"><span class="font-bold mr-1">${authorName}</span>${post.text}</p>` : ''}
+            `;
+            feed.appendChild(postCard);
+          }
+        });
+
+        if (visibleCount === 0) {
+          feed.innerHTML = `<p class="text-xs text-neutral-500 text-center py-10">No posts available right now.</p>`;
+        }
+      });
+    }
+
+    window.toggleLikeFirebase = async (postId, currentlyLiked) => {
+      const postRef = doc(db, "posts", postId);
+      if (currentlyLiked) {
+        await updateDoc(postRef, { likes: arrayRemove(window.currentUser.uid) });
+      } else {
+        await updateDoc(postRef, { likes: arrayUnion(window.currentUser.uid) });
+      }
+    };
+
+    window.toggleFollowUser = async (targetUid) => {
+      const myUid = window.currentUser.uid;
+      const myFollowing = window.currentUserData?.following || [];
+      const targetUser = window.allUsersMap[targetUid];
+
+      if (!targetUser) return;
+
+      const myDocRef = doc(db, "users", myUid);
+      const targetDocRef = doc(db, "users", targetUid);
+
+      const isFollowing = myFollowing.includes(targetUid);
+      const isRequested = targetUser.followRequests && targetUser.followRequests.includes(myUid);
+
+      if (isFollowing) {
+        await updateDoc(myDocRef, { following: arrayRemove(targetUid) });
+        await updateDoc(targetDocRef, { followers: arrayRemove(myUid) });
+      } else if (isRequested) {
+        await updateDoc(targetDocRef, { followRequests: arrayRemove(myUid) });
+      } else {
+        if (targetUser.isPrivate) {
+          await updateDoc(targetDocRef, { followRequests: arrayUnion(myUid) });
+          alert("Follow request sent!");
+        } else {
+          await updateDoc(myDocRef, { following: arrayUnion(targetUid) });
+          await updateDoc(targetDocRef, { followers: arrayUnion(myUid) });
+        }
+      }
+      await fetchCurrentUserData();
+      listenToRegisteredUsersSuggestions();
+    };
+
+    function listenToRegisteredUsersSuggestions() {
+      const container = document.getElementById('suggestedUsersContainer');
+      if (!container) return;
+      container.innerHTML = "";
+
+      const myFollowing = window.currentUserData?.following || [];
+      const myUid = window.currentUser.uid;
+
+      Object.keys(window.allUsersMap).forEach((userId) => {
+        if (userId !== myUid) {
+          const user = window.allUsersMap[userId];
+          const avatar = user.photoURL || DEFAULT_AVATAR;
+          const name = user.fullName || 'User';
+          const username = user.username || 'user';
+
+          const isFollowing = myFollowing.includes(userId);
+          const isRequested = user.followRequests && user.followRequests.includes(myUid);
+
+          let btnText = "Follow";
+          let btnClass = "text-blue-500 hover:text-white";
+
+          if (isFollowing) {
+            btnText = "Following";
+            btnClass = "text-neutral-500";
+          } else if (isRequested) {
+            btnText = "Requested";
+            btnClass = "text-yellow-500";
+          }
+
+          const div = document.createElement('div');
+          div.className = "flex items-center justify-between";
+          div.innerHTML = `
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html?uid=${userId}'">
+              <img src="${avatar}" class="w-8 h-8 rounded-full object-cover border border-neutral-800" onerror="this.src='${DEFAULT_AVATAR}'">
+              <div>
+                <p class="font-bold text-xs text-white hover:underline">${username}</p>
+                <p class="text-neutral-500 text-[10px] truncate w-24">${name}</p>
+              </div>
+            </div>
+            <button onclick="window.toggleFollowUser('${userId}')" class="${btnClass} font-bold text-xs transition">
+              ${btnText}
+            </button>
+          `;
+          container.appendChild(div);
+        }
+      });
+    }
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseIn — Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* Custom Scrollbar Hide */
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-black text-slate-100 min-h-screen font-sans">
+
+  <!-- MAIN CONTAINER -->
+  <div class="flex min-h-screen">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-20 xl:w-64 border-r border-neutral-800 p-3 xl:px-4 xl:py-6 flex flex-col justify-between fixed h-full bg-black z-30 left-0 top-0">
+      <div class="space-y-6">
+        <!-- LOGO -->
+        <div class="px-3 py-2 cursor-pointer" onclick="window.location.href='index.html'">
+          <h1 class="text-2xl font-bold text-white hidden xl:block font-serif italic tracking-wider">PulseIn</h1>
+          <div class="text-2xl font-bold text-white xl:hidden text-center"><i class="fa-brands fa-instagram"></i></div>
+        </div>
+
+        <!-- NAVIGATION OPTIONS -->
+        <nav class="space-y-1">
+          <a href="index.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-white font-bold transition">
+            <i class="fa-solid fa-house text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Home</span>
+          </a>
+          <a href="search.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-solid fa-magnifying-glass text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Search</span>
+          </a>
+          <a href="#" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-regular fa-compass text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Explore</span>
+          </a>
+          <a href="#" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-solid fa-clapperboard text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Reels</span>
+          </a>
+          <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition relative">
+            <i class="fa-regular fa-paper-plane text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Messages</span>
+          </a>
+          <a href="#" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-regular fa-heart text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Notifications</span>
+          </a>
+          <a href="#" id="btnCreatePost" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <i class="fa-regular fa-square-plus text-xl w-6 text-center"></i>
+            <span class="hidden xl:inline text-sm">Create</span>
+          </a>
+          <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
+            <img id="navMyAvatar" src="profile.png" class="w-6 h-6 rounded-full object-cover border border-neutral-700" onerror="this.src='profile.png'">
+            <span class="hidden xl:inline text-sm">Profile</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- BOTTOM SIDEBAR OPTIONS -->
+      <div class="space-y-1">
+        <button id="moreBtn" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full">
+          <i class="fa-solid fa-bars text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline text-sm">More</span>
+        </button>
+        <button id="logoutBtn" class="flex items-center space-x-4 p-3 rounded-lg text-red-500 hover:bg-neutral-900 transition w-full">
+          <i class="fa-solid fa-right-from-bracket text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline text-sm font-bold">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- CENTER CONTENT AREA -->
+    <main class="flex-1 ml-20 xl:ml-64 lg:mr-80 min-h-screen flex flex-col items-center pt-4 px-2">
+      
+      <!-- STORIES CAROUSEL SECTION -->
+      <div class="relative w-full max-w-[630px] my-2 px-4 py-2">
+        
+        <!-- Scroll Left Button -->
+        <button id="btnScrollLeft" class="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-neutral-800/90 text-white w-6 h-6 rounded-full shadow-md flex items-center justify-center hover:bg-neutral-700 transition">
+          <i class="fa-solid fa-chevron-left text-[10px]"></i>
+        </button>
+
+        <!-- Stories Wrapper -->
+        <div id="storiesWrapper" class="flex space-x-4 overflow-x-auto scrollbar-none scroll-smooth items-center px-2">
+          
+          <!-- MY STORY (UPLOAD) -->
+          <div class="flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer">
+            <div id="myStoryBtn" class="relative w-14 h-14 rounded-full p-[2px] border border-neutral-700 flex items-center justify-center hover:scale-105 transition">
+              <img id="myStoryAvatar" src="profile.png" class="w-full h-full rounded-full object-cover" onerror="this.src='profile.png'">
+              <div class="absolute bottom-0 right-0 bg-blue-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-black">+</div>
+            </div>
+            <span class="text-[11px] text-neutral-400 truncate w-14 text-center">Your story</span>
+            <input type="file" id="storyInput" accept="image/*,video/*" class="hidden">
+          </div>
+
+          <!-- DYNAMIC STORIES -->
+          <div id="storiesContainer" class="flex space-x-4 flex-shrink-0"></div>
+
+        </div>
+
+        <!-- Scroll Right Button -->
+        <button id="btnScrollRight" class="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-neutral-800/90 text-white w-6 h-6 rounded-full shadow-md flex items-center justify-center hover:bg-neutral-700 transition">
+          <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </button>
+
+      </div>
+
+      <!-- MAIN FEED POSTS CONTAINER (STRICT 470px WIDTH LIKE INSTAGRAM) -->
+      <div id="feedPostsContainer" class="w-full max-w-[470px] pt-6 space-y-6">
+        <p class="text-xs text-neutral-500 text-center py-10">Loading feed...</p>
+      </div>
+
+    </main>
+
+    <!-- RIGHT SIDEBAR (Suggested Users) -->
+    <aside class="hidden lg:block w-80 fixed right-0 top-0 h-full p-6 space-y-6 bg-black z-20">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href='profile.html'">
+          <img id="sideMyAvatar" src="profile.png" class="w-11 h-11 rounded-full object-cover border border-neutral-800" onerror="this.src='profile.png'">
+          <div>
+            <p id="sideMyUsername" class="font-bold text-xs text-white">username</p>
+            <p id="sideMyName" class="text-neutral-500 text-[11px]">User Name</p>
+          </div>
+        </div>
+        <button class="text-blue-500 hover:text-white font-bold text-xs transition">Switch</button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-neutral-400">Suggested for you</h3>
+          <button class="text-[11px] font-bold text-white hover:text-neutral-400">See All</button>
+        </div>
+        <div id="suggestedUsersContainer" class="space-y-3"></div>
+      </div>
+
+      <!-- FOOTER LINKS -->
+      <div class="text-[11px] text-neutral-600 space-y-2 pt-4 border-t border-neutral-900">
+        <p>About · Help · Press · API · Jobs · Privacy · Terms · Locations · Language · Meta Verified</p>
+        <p>© 2026 PULSEIN FROM META</p>
+      </div>
+    </aside>
+
+    <!-- FLOATING MESSAGE BOX (BOTTOM RIGHT LIKE INSTAGRAM WEB) -->
+    <div onclick="window.location.href='messages.html'" class="fixed bottom-4 right-4 bg-neutral-900 border border-neutral-800 rounded-2xl px-4 py-2.5 flex items-center space-x-3 cursor-pointer hover:bg-neutral-800 transition z-40 shadow-xl">
+      <div class="relative">
+        <i class="fa-regular fa-paper-plane text-white text-lg"></i>
+      </div>
+      <span class="text-xs font-bold text-white">Messages</span>
+      <div class="flex -space-x-2 overflow-hidden ml-2">
+        <span class="w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-neutral-900"></span>
+      </div>
+    </div>
 
   </div>
 

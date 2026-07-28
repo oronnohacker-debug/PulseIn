@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Story — Echoo</title>
+  <link rel="icon" type="image/png" href="https://i.ibb.co/L50H0sD/eagle-logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-black text-slate-100 h-screen flex overflow-hidden">
+
+  <!-- LEFT EDITOR SIDEBAR -->
+  <aside class="w-80 border-r border-slate-800 p-6 flex flex-col justify-between bg-slate-950">
+    <div class="space-y-6">
+      <div class="flex justify-between items-center">
+        <h1 class="text-lg font-bold text-cyan-400">Create Story</h1>
+        <a href="index.html" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark text-lg"></i></a>
+      </div>
+
+      <!-- Add Text -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-400">Add Text</label>
+        <input type="text" id="storyText" placeholder="Type text..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <!-- Music Selection -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-400"><i class="fa-solid fa-music text-pink-400"></i> Add Song / Music</label>
+        <select class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none">
+          <option>Select Song...</option>
+          <option>Trending — Drake Style Beats</option>
+          <option>Lo-Fi Chill Vibe</option>
+          <option>Aesthetic Acoustic Guitar</option>
+        </select>
+      </div>
+
+      <!-- Tag / Mention Friend -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-400"><i class="fa-solid fa-at text-cyan-400"></i> Mention / Tag Friend</label>
+        <input type="text" placeholder="@username" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <!-- Emoji Picker Bar -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-400">Quick Emojis</label>
+        <div class="flex space-x-2 text-xl bg-slate-900 p-2 rounded-xl border border-slate-800 justify-around cursor-pointer">
+          <span>🔥</span><span>❤️</span><span>😂</span><span>😍</span><span>✨</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Button -->
+    <button class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-2.5 rounded-xl text-xs transition">Share to Story</button>
+  </aside>
+
+  <!-- CANVA PREVIEW AREA -->
+  <main class="flex-1 flex items-center justify-center bg-black/90 relative">
+    <div class="w-72 h-[500px] bg-slate-900 rounded-3xl border border-slate-800 relative overflow-hidden flex flex-col justify-center items-center p-4 text-center">
+      <div class="absolute top-4 left-4 flex items-center space-x-2">
+        <img src="https://i.pravatar.cc/100?img=33" class="w-8 h-8 rounded-full">
+        <span class="text-xs font-bold">oron.broh</span>
+      </div>
+      <p id="previewText" class="text-xl font-black text-cyan-400 drop-shadow-lg">Your Story Preview</p>
+    </div>
+  </main>
+
+</body>
+</html>

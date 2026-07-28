@@ -3,150 +3,196 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Echoo — Professional Social Network</title>
+  <title>Echoo — Professional Social Web</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/app.css">
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex antialiased overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+<body class="bg-black text-slate-100 min-h-screen flex antialiased select-none">
 
-  <!-- ACCOUNT SAVER / AUTH OVERLAY -->
-  <div id="authModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative">
-      <div class="text-center mb-6">
-        <h1 class="text-4xl font-black bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">Echoo</h1>
-        <p class="text-xs text-slate-400 mt-1">Connect, Share & Resonate</p>
-      </div>
-
-      <!-- Saved Accounts Grid (Account Saver Feature) -->
-      <div id="savedAccountsContainer" class="hidden mb-6 border-b border-slate-800 pb-4">
-        <p class="text-xs font-bold text-slate-400 mb-3">Saved Accounts</p>
-        <div id="savedAccountsList" class="flex space-x-3 overflow-x-auto pb-2"></div>
-      </div>
-
-      <form id="authForm" class="space-y-4">
-        <input type="text" id="authName" placeholder="Full Name" class="hidden w-full bg-slate-800/60 border border-slate-700/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500">
-        <input type="email" id="authEmail" required placeholder="Email Address" class="w-full bg-slate-800/60 border border-slate-700/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500">
-        <input type="password" id="authPassword" required placeholder="Password" class="w-full bg-slate-800/60 border border-slate-700/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500">
-        <button type="submit" id="authBtn" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold py-3 rounded-xl hover:opacity-90 transition">Log In</button>
+  <!-- AUTH MODAL -->
+  <div id="authModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center shadow-2xl">
+      <h1 class="text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-6">Echoo</h1>
+      
+      <form id="authForm" class="space-y-3">
+        <input type="text" id="authName" placeholder="Full Name" class="hidden w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-cyan-500">
+        <input type="email" id="authEmail" required placeholder="Email or Username" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-cyan-500">
+        <input type="password" id="authPassword" required placeholder="Password" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-cyan-500">
+        <button type="submit" id="authBtn" class="w-full bg-cyan-500 text-black font-bold py-2.5 rounded-xl text-xs hover:bg-cyan-400 transition">Log In</button>
       </form>
 
-      <div class="flex justify-between items-center text-xs text-slate-400 mt-6">
-        <button id="toggleAuthBtn" class="text-cyan-400 font-bold hover:underline">Create Account</button>
-      </div>
+      <button id="toggleAuthBtn" class="text-xs text-cyan-400 font-bold mt-4 hover:underline">Don't have an account? Sign Up</button>
     </div>
   </div>
 
-  <!-- MAIN APPLICATION LAYOUT -->
+  <!-- MAIN APP WRAPPER -->
   <div id="appContainer" class="hidden flex w-full min-h-screen">
     
-    <!-- NAVIGATION SIDEBAR -->
-    <aside class="w-20 xl:w-64 border-r border-slate-800/80 p-4 flex flex-col justify-between h-screen sticky top-0 bg-slate-950/80 backdrop-blur-xl z-30">
-      <div class="space-y-6">
-        <div class="px-2 pt-2 flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-400 to-purple-600 flex items-center justify-center font-black text-black text-xl shadow-lg shadow-cyan-500/20">E</div>
-          <span class="hidden xl:inline text-2xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Echoo</span>
+    <!-- LEFT INSTAGRAM-STYLE FIXED SIDEBAR -->
+    <aside class="w-16 xl:w-60 border-r border-slate-800/80 h-screen sticky top-0 flex flex-col justify-between py-6 px-3 bg-black z-40">
+      <div class="space-y-8">
+        <!-- Logo -->
+        <div class="px-3 flex items-center space-x-3 cursor-pointer" onclick="router('feed')">
+          <i class="fa-solid fa-waveform text-cyan-400 text-2xl"></i>
+          <span class="hidden xl:inline text-xl font-bold font-mono tracking-wider">Echoo</span>
         </div>
 
-        <nav class="space-y-1">
-          <button onclick="router('feed')" class="nav-btn active w-full flex items-center space-x-4 p-3 rounded-2xl hover:bg-slate-900 transition"><i class="fa-solid fa-house text-lg"></i><span class="hidden xl:inline text-sm font-semibold">Feed</span></button>
-          <button onclick="router('reels')" class="nav-btn w-full flex items-center space-x-4 p-3 rounded-2xl hover:bg-slate-900 transition"><i class="fa-solid fa-clapperboard text-lg"></i><span class="hidden xl:inline text-sm font-semibold">Reels</span></button>
-          <button onclick="router('messages')" class="nav-btn w-full flex items-center space-x-4 p-3 rounded-2xl hover:bg-slate-900 transition"><i class="fa-solid fa-paper-plane text-lg"></i><span class="hidden xl:inline text-sm font-semibold">Messages</span></button>
-          <button onclick="router('search')" class="nav-btn w-full flex items-center space-x-4 p-3 rounded-2xl hover:bg-slate-900 transition"><i class="fa-solid fa-magnifying-glass text-lg"></i><span class="hidden xl:inline text-sm font-semibold">Search</span></button>
-          <button onclick="router('dashboard')" class="nav-btn w-full flex items-center space-x-4 p-3 rounded-2xl hover:bg-slate-900 transition"><i class="fa-solid fa-chart-line text-lg"></i><span class="hidden xl:inline text-sm font-semibold">Dashboard</span></button>
-          <button onclick="router('settings')" class="nav-btn w-full flex items-center space-x-4 p-3 rounded-2xl hover:bg-slate-900 transition"><i class="fa-solid fa-gear text-lg"></i><span class="hidden xl:inline text-sm font-semibold">Settings</span></button>
+        <!-- Navigation Menu -->
+        <nav class="space-y-2">
+          <button onclick="router('feed')" id="nav-feed" class="nav-item active w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 transition">
+            <i class="fa-solid fa-house text-xl"></i>
+            <span class="hidden xl:inline text-sm">Home</span>
+          </button>
+
+          <button onclick="router('search')" id="nav-search" class="nav-item w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 transition">
+            <i class="fa-solid fa-magnifying-glass text-xl"></i>
+            <span class="hidden xl:inline text-sm">Search</span>
+          </button>
+
+          <button onclick="router('reels')" id="nav-reels" class="nav-item w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 transition">
+            <i class="fa-solid fa-clapperboard text-xl"></i>
+            <span class="hidden xl:inline text-sm">Reels</span>
+          </button>
+
+          <button onclick="router('messages')" id="nav-messages" class="nav-item w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 transition relative">
+            <i class="fa-regular fa-paper-plane text-xl"></i>
+            <span class="hidden xl:inline text-sm">Messages</span>
+            <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+
+          <button onclick="router('notifications')" id="nav-notifications" class="nav-item w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 transition">
+            <i class="fa-regular fa-heart text-xl"></i>
+            <span class="hidden xl:inline text-sm">Notifications</span>
+          </button>
+
+          <button onclick="router('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 transition">
+            <i class="fa-solid fa-chart-line text-xl"></i>
+            <span class="hidden xl:inline text-sm">Dashboard</span>
+          </button>
+
+          <button onclick="router('settings')" id="nav-settings" class="nav-item w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900 transition">
+            <i class="fa-solid fa-gear text-xl"></i>
+            <span class="hidden xl:inline text-sm">Settings</span>
+          </button>
         </nav>
       </div>
 
-      <div class="border-t border-slate-800 pt-4 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div id="userAvatar" class="w-10 h-10 rounded-full bg-cyan-500 text-black font-bold flex items-center justify-center">U</div>
-          <div class="hidden xl:block">
-            <p id="userName" class="text-xs font-bold truncate max-w-[100px]"></p>
-            <p id="lockStatus" class="text-[10px] text-slate-400"><i class="fa-solid fa-globe"></i> Public</p>
-          </div>
+      <!-- Bottom Profile & Logout -->
+      <div class="space-y-2 border-t border-slate-800/80 pt-4">
+        <div onclick="router('profile')" class="flex items-center space-x-3 p-2 rounded-xl hover:bg-slate-900 cursor-pointer">
+          <div id="userAvatar" class="w-7 h-7 rounded-full bg-cyan-500 text-black text-xs font-bold flex items-center justify-center">U</div>
+          <span id="userName" class="hidden xl:inline text-xs font-semibold truncate">User</span>
         </div>
-        <button id="logoutBtn" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-right-from-bracket"></i></button>
+        <button id="logoutBtn" class="w-full flex items-center space-x-4 p-3 rounded-xl text-red-400 hover:bg-slate-900 transition">
+          <i class="fa-solid fa-right-from-bracket text-lg"></i>
+          <span class="hidden xl:inline text-xs font-semibold">Log Out</span>
+        </button>
       </div>
     </aside>
 
-    <!-- VIEWS / PAGES CONTAINER -->
-    <main class="flex-1 max-w-4xl mx-auto p-4 xl:p-6 overflow-y-auto">
-      
-      <!-- FEED PAGE -->
-      <section id="page-feed" class="space-y-6">
-        <!-- FOLLOWERS ONLY STORIES BAR -->
-        <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 flex space-x-4 overflow-x-auto">
-          <div onclick="openStoryUploader()" class="flex-shrink-0 text-center cursor-pointer">
-            <div class="w-14 h-14 rounded-full border-2 border-dashed border-cyan-400 flex items-center justify-center text-cyan-400 mb-1"><i class="fa-solid fa-plus"></i></div>
-            <span class="text-[10px] text-slate-400">Add Story</span>
+    <!-- CENTER DYNAMIC CONTENT AREA -->
+    <main class="flex-1 max-w-5xl mx-auto p-4 xl:p-6 overflow-y-auto min-h-screen">
+
+      <!-- 1. HOME / FEED PAGE -->
+      <section id="page-feed" class="space-y-6 max-w-xl mx-auto">
+        <!-- Stories Row -->
+        <div class="flex space-x-4 overflow-x-auto py-2 border-b border-slate-800">
+          <div class="flex-shrink-0 text-center cursor-pointer">
+            <div class="w-16 h-16 rounded-full border-2 border-cyan-400 p-0.5 mb-1">
+              <div class="w-full h-full bg-slate-800 rounded-full flex items-center justify-center text-cyan-400"><i class="fa-solid fa-plus"></i></div>
+            </div>
+            <span class="text-[10px] text-slate-400">Your Story</span>
           </div>
-          <div id="storiesList" class="flex space-x-4 overflow-x-auto"></div>
+          <div id="storiesList" class="flex space-x-4"></div>
         </div>
 
-        <!-- POST CREATOR & SPONSORED ADS FEED -->
-        <div id="feedStream" class="space-y-6"></div>
+        <!-- Feed Stream -->
+        <div id="feedStream" class="space-y-6">
+          <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 text-center text-slate-500 text-xs">
+            No posts available. Share something new!
+          </div>
+        </div>
       </section>
 
-      <!-- REELS PAGE -->
+      <!-- 2. SEARCH / EXPLORE PAGE (Insta Grid View) -->
+      <section id="page-search" class="hidden space-y-4">
+        <div class="max-w-md mx-auto relative mb-6">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500 text-xs"></i>
+          <input type="text" placeholder="Search profiles, reels, or tags..." class="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:border-cyan-500">
+        </div>
+        <!-- Explore Grid -->
+        <div class="grid grid-cols-3 gap-2" id="exploreGrid">
+          <div class="aspect-square bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center"><i class="fa-solid fa-image text-slate-700"></i></div>
+          <div class="aspect-square bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center"><i class="fa-solid fa-image text-slate-700"></i></div>
+          <div class="aspect-square bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center"><i class="fa-solid fa-image text-slate-700"></i></div>
+        </div>
+      </section>
+
+      <!-- 3. REELS PAGE (Vertical Short Videos) -->
       <section id="page-reels" class="hidden h-[85vh] flex items-center justify-center">
-        <div class="w-full max-w-sm h-full bg-slate-900 rounded-3xl border border-slate-800 relative flex items-center justify-center">
-          <i class="fa-solid fa-circle-play text-5xl text-slate-600"></i>
-          <p class="absolute bottom-4 text-xs text-slate-400">Swipe Up for Next Reel</p>
+        <div class="w-full max-w-sm h-full bg-slate-900 rounded-3xl border border-slate-800 relative flex items-center justify-center overflow-hidden">
+          <div class="absolute top-4 left-4 font-bold text-xs bg-black/50 px-3 py-1 rounded-full">Reels</div>
+          <i class="fa-solid fa-circle-play text-5xl text-cyan-500/50"></i>
+          <div class="absolute bottom-4 right-4 flex flex-col space-y-4 text-xl">
+            <button class="hover:text-red-500"><i class="fa-regular fa-heart"></i></button>
+            <button><i class="fa-regular fa-comment"></i></button>
+            <button><i class="fa-regular fa-paper-plane"></i></button>
+          </div>
         </div>
       </section>
 
-      <!-- MESSAGES PAGE WITH AUDIO/VIDEO CALL -->
-      <section id="page-messages" class="hidden h-[85vh] bg-slate-900/40 border border-slate-800/80 rounded-3xl flex overflow-hidden">
+      <!-- 4. MESSAGES PAGE WITH AUDIO/VIDEO CALL -->
+      <section id="page-messages" class="hidden h-[85vh] bg-slate-900/30 border border-slate-800 rounded-2xl flex overflow-hidden">
         <div class="w-1/3 border-r border-slate-800 p-4">
           <h2 class="font-bold text-sm mb-4">Direct Messages</h2>
-          <div id="chatUsersList" class="space-y-2"></div>
+          <div id="chatUsersList" class="space-y-2 text-xs text-slate-400">Select a chat</div>
         </div>
-        <div class="flex-1 flex flex-col justify-between p-4 relative">
-          <!-- CALL HEADER -->
+        <div class="flex-1 flex flex-col justify-between p-4">
           <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-            <span id="activeChatUser" class="text-xs font-bold">Select User</span>
-            <div class="space-x-3">
-              <button onclick="startCall('audio')" class="text-cyan-400 hover:text-cyan-300"><i class="fa-solid fa-phone"></i></button>
-              <button onclick="startCall('video')" class="text-cyan-400 hover:text-cyan-300"><i class="fa-solid fa-video"></i></button>
+            <span id="activeChatUser" class="text-xs font-bold">Global Channel</span>
+            <div class="space-x-4 text-cyan-400">
+              <button onclick="startCall('audio')" class="hover:text-cyan-300"><i class="fa-solid fa-phone"></i></button>
+              <button onclick="startCall('video')" class="hover:text-cyan-300"><i class="fa-solid fa-video"></i></button>
             </div>
           </div>
           <div id="chatMessages" class="flex-1 overflow-y-auto my-3 space-y-2"></div>
           <div class="flex space-x-2">
-            <input type="text" id="chatInput" class="flex-1 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2 text-xs focus:outline-none" placeholder="Message...">
-            <button id="sendChatBtn" class="bg-cyan-500 text-black px-4 rounded-xl text-xs font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+            <input type="text" id="chatInput" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs focus:outline-none" placeholder="Message...">
+            <button id="sendChatBtn" class="bg-cyan-500 text-black font-bold px-4 rounded-xl text-xs">Send</button>
           </div>
         </div>
       </section>
 
-      <!-- SETTINGS & ACCOUNT LOCK PAGE -->
+      <!-- 5. CREATOR DASHBOARD PAGE -->
+      <section id="page-dashboard" class="hidden space-y-6">
+        <h2 class="text-lg font-bold">Creator Analytics & Ads</h2>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+            <p class="text-2xl font-black text-cyan-400">24.8K</p>
+            <p class="text-[10px] text-slate-400">Post Reach</p>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+            <p class="text-2xl font-black text-blue-400">3.1K</p>
+            <p class="text-[10px] text-slate-400">Interactions</p>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
+            <p class="text-2xl font-black text-emerald-400">$120.50</p>
+            <p class="text-[10px] text-slate-400">Ad Revenue</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. SETTINGS & ACCOUNT LOCK PAGE -->
       <section id="page-settings" class="hidden space-y-6">
-        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-          <h3 class="font-bold text-lg mb-4">Privacy & Account Lock</h3>
+        <h2 class="text-lg font-bold">Account Settings</h2>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-semibold">Private Account</p>
-              <p class="text-xs text-slate-400">Only approved followers can see your posts and stories.</p>
+              <p class="text-xs font-bold">Private Profile (Account Lock)</p>
+              <p class="text-[10px] text-slate-400">Require follow request to see posts & reels</p>
             </div>
-            <input type="checkbox" id="privateAccountToggle" class="w-5 h-5 accent-cyan-500 cursor-pointer">
-          </div>
-        </div>
-      </section>
-
-      <!-- CREATOR DASHBOARD -->
-      <section id="page-dashboard" class="hidden space-y-6">
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl text-center">
-            <p class="text-2xl font-black text-cyan-400">12.5K</p>
-            <p class="text-xs text-slate-400">Total Impressions</p>
-          </div>
-          <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl text-center">
-            <p class="text-2xl font-black text-blue-400">1.2K</p>
-            <p class="text-xs text-slate-400">Profile Visits</p>
-          </div>
-          <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl text-center">
-            <p class="text-2xl font-black text-purple-400">$45.00</p>
-            <p class="text-xs text-slate-400">Ad Revenue</p>
+            <input type="checkbox" id="privateAccountToggle" class="w-4 h-4 accent-cyan-500 cursor-pointer">
           </div>
         </div>
       </section>
@@ -154,20 +200,17 @@
     </main>
   </div>
 
-  <!-- AUDIO/VIDEO CALL OVERLAY WITH CAMERA PERMISSION -->
+  <!-- WEBRTC VIDEO/AUDIO CALL OVERLAY -->
   <div id="callModal" class="hidden fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4">
-    <div class="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden aspect-video flex items-center justify-center">
+    <div class="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden aspect-video flex items-center justify-center">
       <video id="remoteVideo" autoplay class="w-full h-full object-cover"></video>
-      <video id="localVideo" autoplay muted class="absolute bottom-4 right-4 w-32 aspect-video bg-black rounded-xl border border-slate-700 object-cover"></video>
+      <video id="localVideo" autoplay muted class="absolute bottom-4 right-4 w-28 aspect-video bg-black rounded-xl border border-slate-700 object-cover"></video>
     </div>
-    <div class="flex space-x-6 mt-6">
-      <button id="endCallBtn" class="bg-red-600 text-white w-14 h-14 rounded-full text-xl flex items-center justify-center hover:bg-red-700"><i class="fa-solid fa-phone-slash"></i></button>
-    </div>
+    <button id="endCallBtn" class="mt-6 bg-red-600 text-white w-12 h-12 rounded-full text-lg flex items-center justify-center"><i class="fa-solid fa-phone-slash"></i></button>
   </div>
 
   <script type="module" src="js/firebase-config.js"></script>
   <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/feed-stories.js"></script>
   <script type="module" src="js/chat-calls.js"></script>
   <script type="module" src="js/settings-db.js"></script>
 </body>

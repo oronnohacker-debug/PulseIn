@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>oron.broh — Echoo</title>
+  <link rel="icon" type="image/png" href="https://i.ibb.co/L50H0sD/eagle-logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .sidebar { width: 72px; transition: width 0.25s ease-in-out; }
+    .sidebar:hover { width: 240px; }
+    .sidebar:hover .nav-text { display: inline-block; }
+    .nav-text { display: none; }
+  </style>
+</head>
+<body class="bg-black text-slate-100 min-h-screen flex">
+
+  <aside class="sidebar fixed top-0 left-0 h-screen bg-black border-r border-slate-800 flex flex-col justify-between py-6 px-3 z-50">
+    <nav class="space-y-4">
+      <a href="index.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-slate-900"><i class="fa-solid fa-house text-xl w-6 text-center"></i><span class="nav-text text-sm">Home</span></a>
+      <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-xl bg-slate-900 text-cyan-400"><i class="fa-regular fa-user text-xl w-6 text-center"></i><span class="nav-text text-sm">Profile</span></a>
+    </nav>
+  </aside>
+
+  <main class="pl-24 flex-1 max-w-4xl mx-auto py-10 px-4 space-y-8">
+    <div class="flex items-center space-x-8 border-b border-slate-800 pb-8">
+      <img src="https://i.pravatar.cc/100?img=33" class="w-32 h-32 rounded-full border-2 border-cyan-400">
+      <div class="space-y-3">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-xl font-bold">oron.broh</h1>
+          <a href="settings.html" class="bg-slate-800 px-3 py-1 rounded-lg text-xs font-bold hover:bg-slate-700">Edit Profile</a>
+        </div>
+        <div class="flex space-x-6 text-xs text-slate-300">
+          <span><b>12</b> posts</span>
+          <span><b>1.2k</b> followers</span>
+          <span><b>340</b> following</span>
+        </div>
+        <p class="text-xs text-slate-400">Oronno 🐯 | Web Developer & Game Dev enthusiast</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -3,23 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PulseIn — Login</title>
+  <title>PulseIn — Firebase Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- FIREBASE SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, 
+      GoogleAuthProvider, 
+      signInWithPopup, 
+      RecaptchaVerifier, 
+      signInWithPhoneNumber, 
+      sendSignInLinkToEmail 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // YOUR FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyCPjBq74KCEgeO4MK6EZFjMuA3ju3s3Wpc",
+      authDomain: "echoo-325d4.firebaseapp.com",
+      projectId: "echoo-325d4",
+      storageBucket: "echoo-325d4.firebasestorage.app",
+      messagingSenderId: "694671555312",
+      appId: "1:694671555312:web:12b3bdf72ff02943eba035",
+      measurementId: "G-N8L551KYDP"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    auth.useDeviceLanguage();
+
+    let confirmationResultGlobal = null;
+
+    // 1. GOOGLE LOGIN
+    window.loginWithGoogle = async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        alert(`Welcome ${result.user.displayName}! Redirecting...`);
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Google Sign-In Error: " + error.message);
+      }
+    };
+
+    // 2. PHONE / WHATSAPP OTP LOGIN
+    window.setupRecaptcha = () => {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          'size': 'invisible'
+        });
+      }
+    };
+
+    window.sendPhoneOtp = async () => {
+      const phone = document.getElementById('phoneInput').value.trim();
+      if (!phone) {
+        alert("Please enter a valid phone number with country code (e.g. +8801XXXXXXXXX)!");
+        return;
+      }
+
+      window.setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+
+      try {
+        confirmationResultGlobal = await signInWithPhoneNumber(auth, phone, appVerifier);
+        document.getElementById('phoneOtpBox').classList.remove('hidden');
+        alert("Verification code sent to your phone/WhatsApp!");
+      } catch (error) {
+        alert("Phone Auth Error: " + error.message);
+      }
+    };
+
+    window.verifyPhoneOtp = async () => {
+      const code = document.getElementById('otpInput').value.trim();
+      if (!code) {
+        alert("Please enter the 6-digit code!");
+        return;
+      }
+
+      try {
+        await confirmationResultGlobal.confirm(code);
+        alert("Phone Number Verified Successfully!");
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Invalid Verification Code!");
+      }
+    };
+
+    // 3. EMAIL LINK LOGIN
+    window.sendEmailCode = async () => {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email) {
+        alert("Please enter a valid email address!");
+        return;
+      }
+
+      const actionCodeSettings = {
+        url: window.location.origin + '/index.html',
+        handleCodeInApp: true,
+      };
+
+      try {
+        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+        window.localStorage.setItem('emailForSignIn', email);
+        document.getElementById('emailOtpBox').classList.remove('hidden');
+      } catch (error) {
+        alert("Email Link Error: " + error.message);
+      }
+    };
+  </script>
 </head>
 <body class="bg-black text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans select-none">
+
+  <!-- RECAPTCHA CONTAINER -->
+  <div id="recaptcha-container"></div>
 
   <!-- LOGIN CONTAINER -->
   <div class="w-full max-w-md bg-[#121212] border border-neutral-800 rounded-3xl p-8 space-y-6 shadow-2xl">
     
-    <!-- BRAND LOGO & HEADER -->
+    <!-- BRAND HEADER -->
     <div class="text-center space-y-2">
       <img src="logo.png" alt="PulseIn Logo" class="w-14 h-14 mx-auto object-contain">
       <h1 class="text-2xl font-bold tracking-wider text-white">PulseIn</h1>
-      <p class="text-xs text-neutral-400">Welcome back! Choose how you want to log in.</p>
+      <p class="text-xs text-neutral-400">Firebase Real Auth Connected</p>
     </div>
 
-    <!-- 1. LAST LOGGED-IN ACCOUNT CARD -->
+    <!-- LAST LOGGED IN USER -->
     <div class="bg-[#1a1a1a] border border-neutral-800 p-4 rounded-2xl flex items-center justify-between hover:border-cyan-500/50 transition">
       <div class="flex items-center space-x-3">
         <div class="w-11 h-11 rounded-full bg-cyan-700 text-white font-bold flex items-center justify-center text-sm border border-neutral-700">
@@ -27,7 +139,7 @@
         </div>
         <div>
           <p class="text-sm font-bold text-white">oron.broh</p>
-          <p class="text-[11px] text-cyan-400">Last logged in on this device</p>
+          <p class="text-[11px] text-cyan-400">Last active account</p>
         </div>
       </div>
       <a href="index.html" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
@@ -41,46 +153,43 @@
       <div class="flex-grow border-t border-neutral-800"></div>
     </div>
 
-    <!-- 2. LOGIN WITH GOOGLE BUTTON -->
-    <button onclick="handleGoogleLogin()" class="w-full flex items-center justify-center space-x-3 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-white font-medium py-3 rounded-2xl text-xs transition">
+    <!-- GOOGLE LOGIN BUTTON -->
+    <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center space-x-3 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-white font-medium py-3 rounded-2xl text-xs transition">
       <i class="fa-brands fa-google text-red-400 text-base"></i>
       <span>Continue with Google</span>
     </button>
 
-    <!-- LOGIN METHOD TABS (PHONE vs EMAIL) -->
+    <!-- TAB SWITCHER -->
     <div class="flex bg-neutral-900 p-1 rounded-2xl border border-neutral-800 text-xs font-semibold">
       <button id="tabPhoneBtn" onclick="switchTab('phone')" class="flex-1 py-2 rounded-xl bg-cyan-600 text-white transition">
-        <i class="fa-brands fa-whatsapp text-emerald-400 mr-1"></i> Phone (WhatsApp)
+        <i class="fa-brands fa-whatsapp text-emerald-400 mr-1"></i> Phone / WhatsApp
       </button>
       <button id="tabEmailBtn" onclick="switchTab('email')" class="flex-1 py-2 rounded-xl text-neutral-400 hover:text-white transition">
-        <i class="fa-regular fa-envelope text-cyan-400 mr-1"></i> Email Code
+        <i class="fa-regular fa-envelope text-cyan-400 mr-1"></i> Email Link
       </button>
     </div>
 
-    <!-- 3. PHONE NUMBER (WHATSAPP OTP) FORM -->
+    <!-- PHONE FORM -->
     <div id="phoneForm" class="space-y-4">
       <div>
-        <label class="text-[11px] text-neutral-400 mb-1 block">Phone Number</label>
-        <div class="flex items-center bg-black border border-neutral-800 rounded-xl px-3 py-2.5 space-x-2 focus-within:border-cyan-500">
-          <span class="text-xs text-neutral-400 font-bold">+880</span>
-          <input type="tel" id="phoneInput" placeholder="1XXXXXXXXX" class="bg-transparent text-xs text-white focus:outline-none flex-1">
-        </div>
+        <label class="text-[11px] text-neutral-400 mb-1 block">Phone Number (with Country Code)</label>
+        <input type="tel" id="phoneInput" placeholder="+8801XXXXXXXXX" class="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
       </div>
 
-      <button onclick="sendWhatsAppCode()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+      <button onclick="sendPhoneOtp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
         <i class="fa-brands fa-whatsapp text-base"></i>
-        <span>Send Code to WhatsApp</span>
+        <span>Send Code via SMS / WhatsApp</span>
       </button>
 
-      <!-- OTP Input Box (Hidden initially) -->
+      <!-- Phone OTP Box -->
       <div id="phoneOtpBox" class="hidden space-y-3 pt-2 border-t border-neutral-800">
-        <p class="text-[11px] text-emerald-400 text-center"><i class="fa-solid fa-circle-check mr-1"></i> Code sent to your WhatsApp!</p>
-        <input type="text" placeholder="Enter 6-digit WhatsApp Code" class="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-center tracking-widest text-white focus:outline-none focus:border-emerald-500">
-        <a href="index.html" class="block text-center bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Verify & Login</a>
+        <p class="text-[11px] text-emerald-400 text-center">Enter 6-digit code sent to your phone:</p>
+        <input type="text" id="otpInput" placeholder="123456" class="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-center tracking-widest text-white focus:outline-none focus:border-emerald-500">
+        <button onclick="verifyPhoneOtp()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Verify Code & Login</button>
       </div>
     </div>
 
-    <!-- 4. DIRECT EMAIL OTP FORM -->
+    <!-- EMAIL FORM -->
     <div id="emailForm" class="hidden space-y-4">
       <div>
         <label class="text-[11px] text-neutral-400 mb-1 block">Email Address</label>
@@ -88,25 +197,17 @@
       </div>
 
       <button onclick="sendEmailCode()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
-        Send Code to Email
+        Send Login Link to Email
       </button>
 
-      <!-- Email OTP Box (Hidden initially) -->
-      <div id="emailOtpBox" class="hidden space-y-3 pt-2 border-t border-neutral-800">
-        <p class="text-[11px] text-cyan-400 text-center"><i class="fa-solid fa-envelope-circle-check mr-1"></i> Verification code sent to your email!</p>
-        <input type="text" placeholder="Enter Verification Code" class="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-center tracking-widest text-white focus:outline-none focus:border-cyan-500">
-        <a href="index.html" class="block text-center bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Verify & Login</a>
+      <!-- Email Confirmation Box -->
+      <div id="emailOtpBox" class="hidden space-y-2 pt-2 border-t border-neutral-800 text-center">
+        <p class="text-[11px] text-cyan-400"><i class="fa-solid fa-envelope-circle-check mr-1"></i> Check your Gmail! Click the link inside to log in.</p>
       </div>
-    </div>
-
-    <!-- FOOTER LINK -->
-    <div class="text-center text-[11px] text-neutral-500 pt-2">
-      Don't have an account? <a href="#" class="text-cyan-400 font-bold hover:underline">Sign up</a>
     </div>
 
   </div>
 
-  <!-- JAVASCRIPT FOR LOGIN LOGIC & TAB SWITCHING -->
   <script>
     function switchTab(type) {
       const phoneBtn = document.getElementById('tabPhoneBtn');
@@ -126,30 +227,6 @@
         phoneForm.classList.add('hidden');
       }
     }
-
-    function handleGoogleLogin() {
-      alert("Redirecting to Google... A login confirmation message will be sent to your Gmail inbox.");
-      window.location.href = "index.html";
-    }
-
-    function sendWhatsAppCode() {
-      const phone = document.getElementById('phoneInput').value.trim();
-      if (!phone) {
-        alert("Please enter a valid phone number!");
-        return;
-      }
-      document.getElementById('phoneOtpBox').classList.remove('hidden');
-    }
-
-    function sendEmailCode() {
-      const email = document.getElementById('emailInput').value.trim();
-      if (!email) {
-        alert("Please enter a valid email address!");
-        return;
-      }
-      document.getElementById('emailOtpBox').classList.remove('hidden');
-    }
   </script>
-
 </body>
 </html>

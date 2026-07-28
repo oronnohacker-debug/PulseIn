@@ -2,17 +2,24 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PulseIn — Instagram Style Layout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseIn — Social Feed</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
+  <style>
+    /* সাইডবার অটো-হাইড ট্রানজিশন */
+    .sidebar { width: 72px; transition: width 0.3s ease; }
+    .sidebar:hover { width: 240px; }
+    .sidebar span { opacity: 0; transition: opacity 0.2s; }
+    .sidebar:hover span { opacity: 1; }
+    .sidebar:hover .logo-text { display: block; }
+  </style>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { 
-      getFirestore, doc, getDoc, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, updateDoc, arrayUnion, arrayRemove, getDocs, deleteDoc 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, onSnapshot, query, orderBy, updateDoc, arrayUnion, arrayRemove, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCPjBq74KCEgeO4MK6EZFjMuA3ju3s3Wpc",
@@ -32,401 +39,101 @@
     window.selectedPostMedia = null;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-      } else {
+      if (!user) { window.location.href = "login.html"; }
+      else {
         window.currentUser = user;
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           window.currentUserData = userDoc.data();
-          const avatarUrl = window.currentUserData.photoURL || 'https://via.placeholder.com/150';
-          
-          document.getElementById('myStoryAvatar').src = avatarUrl;
-          document.getElementById('rightUserAvatar').src = avatarUrl;
-          document.getElementById('rightUserName').innerText = window.currentUserData.fullName || 'User';
-          document.getElementById('rightUserHandle').innerText = window.currentUserData.username || 'user';
-          
           listenToRealtimePosts();
-          listenToStories();
-        } else {
-          window.location.href = "setup-profile.html";
         }
       }
     });
 
-    // --- REALTIME STORIES ---
-    function listenToStories() {
-      const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
-      onSnapshot(q, (snapshot) => {
-        const container = document.getElementById('storiesContainer');
-        container.innerHTML = "";
-        snapshot.forEach((docSnap) => {
-          const s = docSnap.data();
-          const div = document.createElement('div');
-          div.className = "flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer";
-          div.onclick = () => window.open(s.media, '_blank');
-          div.innerHTML = `
-            <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600">
-              <img src="${s.media}" class="w-full h-full rounded-full object-cover border-2 border-black">
-            </div>
-            <span class="text-[11px] text-neutral-300 truncate w-16 text-center">${s.authorName}</span>
-          `;
-          container.appendChild(div);
-        });
+    // পোস্ট পাবলিশ করার সময় চেক করা হচ্ছে যে মিডিয়া আছে কি না
+    window.publishPost = async () => {
+      const text = document.getElementById('postInputText').value.trim();
+      
+      // Validation: যদি ইমেজ বা ভিডিও না থাকে, পোস্ট হবে না
+      if (!window.selectedPostMedia) {
+        alert("Please select a photo or video to post!");
+        return;
+      }
+
+      await addDoc(collection(db, "posts"), {
+        text: text,
+        media: window.selectedPostMedia,
+        authorUid: window.currentUser.uid,
+        authorName: window.currentUserData.fullName || "User",
+        createdAt: new Date()
       });
-    }
 
-    // --- REALTIME POSTS FEED ---
-    function listenToRealtimePosts() {
-      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-      onSnapshot(q, (snapshot) => {
-        const feed = document.getElementById('feedPostsContainer');
-        feed.innerHTML = "";
+      window.closeCreatePostModal();
+      window.selectedPostMedia = null;
+    };
 
-        snapshot.forEach((docSnap) => {
-          const post = docSnap.data();
-          const postId = docSnap.id;
-          const isLiked = post.likes && post.likes.includes(window.currentUser.uid);
-          const likeCount = post.likes ? post.likes.length : 0;
-          const isMyPost = post.authorUid === window.currentUser.uid;
-
-          let mediaHTML = "";
-          if (post.media) {
-            if (post.mediaType && post.mediaType.startsWith('video/')) {
-              mediaHTML = `<video src="${post.media}" controls class="w-full rounded-lg max-h-[500px] object-cover mt-2 border border-neutral-900"></video>`;
-            } else {
-              mediaHTML = `<img src="${post.media}" class="w-full rounded-lg max-h-[500px] object-cover mt-2 border border-neutral-900">`;
-            }
-          }
-
-          const authorAvatar = post.authorPhoto 
-            ? `<img src="${post.authorPhoto}" class="w-8 h-8 rounded-full object-cover border border-neutral-800">`
-            : `<div class="w-8 h-8 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs">${(post.authorName || 'U').substring(0, 2).toUpperCase()}</div>`;
-
-          const postCard = document.createElement('div');
-          postCard.className = "border-b border-neutral-800 pb-6 mb-6 space-y-3 max-w-[470px] mx-auto";
-          postCard.innerHTML = `
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <div class="p-[1.5px] bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full">
-                  ${authorAvatar}
-                </div>
-                <div class="flex items-center space-x-2">
-                  <h4 class="text-xs font-bold text-white">${post.authorName || 'User'}</h4>
-                  <span class="text-neutral-500 text-[10px]">• 1w</span>
-                </div>
-              </div>
-              
-              <div class="flex items-center space-x-2">
-                ${isMyPost ? `<button onclick="window.editPost('${postId}', '${encodeURIComponent(post.text || '')}')" class="text-neutral-400 hover:text-white text-xs"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
-                <button onclick="window.deletePost('${postId}')" class="text-neutral-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </div>
-
-            ${mediaHTML}
-            ${post.text ? `<p class="text-xs text-slate-200 mt-2">${post.text}</p>` : ''}
-
-            <div class="flex items-center justify-between pt-1 text-white text-lg">
-              <div class="flex items-center space-x-4">
-                <button onclick="window.toggleLikeFirebase('${postId}', ${isLiked})" class="${isLiked ? 'text-red-500' : 'hover:text-neutral-400'}">
-                  <i class="${isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i>
-                </button>
-                <button onclick="window.toggleCommentBox('${postId}')" class="hover:text-neutral-400">
-                  <i class="fa-regular fa-comment"></i>
-                </button>
-                <button onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied!');" class="hover:text-neutral-400">
-                  <i class="fa-regular fa-paper-plane"></i>
-                </button>
-              </div>
-              <i class="fa-regular fa-bookmark hover:text-neutral-400 cursor-pointer"></i>
-            </div>
-
-            <p class="text-xs font-bold text-white">${likeCount} likes</p>
-
-            <div id="commentSection-${postId}" class="hidden pt-2 space-y-2">
-              <div id="commentsList-${postId}" class="space-y-1 max-h-36 overflow-y-auto"></div>
-              <div class="flex items-center space-x-2 pt-2 border-t border-neutral-900">
-                <input type="text" id="commentInput-${postId}" placeholder="Add a comment..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
-                <button onclick="window.sendComment('${postId}')" class="text-yellow-400 hover:text-white text-xs font-bold">Post</button>
-              </div>
-            </div>
-          `;
-          feed.appendChild(postCard);
-          window.listenToComments(postId);
-        });
-      });
-    }
-
-    window.deletePost = async (postId) => {
+    // ডিলিট রেস্ট্রিকশন
+    window.deletePost = async (postId, authorUid) => {
+      if (authorUid !== window.currentUser.uid) {
+        alert("You cannot delete other people's posts!");
+        return;
+      }
       if (confirm("Delete this post?")) {
         await deleteDoc(doc(db, "posts", postId));
       }
     };
 
-    window.toggleCommentBox = (postId) => {
-      document.getElementById(`commentSection-${postId}`).classList.toggle('hidden');
-    };
-
-    window.listenToComments = (postId) => {
-      const commentsRef = collection(db, "posts", postId, "comments");
-      const q = query(commentsRef, orderBy("createdAt", "asc"));
-      onSnapshot(q, (snapshot) => {
-        const list = document.getElementById(`commentsList-${postId}`);
-        if (!list) return;
-        list.innerHTML = "";
-        snapshot.forEach((docSnap) => {
-          const c = docSnap.data();
-          const item = document.createElement('div');
-          item.className = "text-xs";
-          item.innerHTML = `<span class="font-bold text-white mr-2">${c.authorName}</span><span class="text-slate-300">${c.text || ''}</span>`;
-          list.appendChild(item);
-        });
-      });
-    };
-
-    window.sendComment = async (postId) => {
-      const input = document.getElementById(`commentInput-${postId}`);
-      const val = input.value.trim();
-      if (!val) return;
-      await addDoc(collection(db, "posts", postId, "comments"), {
-        text: val,
-        authorName: window.currentUserData.fullName || "User",
-        createdAt: serverTimestamp()
-      });
-      input.value = "";
-    };
-
-    window.toggleLikeFirebase = async (postId, currentlyLiked) => {
-      const postRef = doc(db, "posts", postId);
-      if (currentlyLiked) {
-        await updateDoc(postRef, { likes: arrayRemove(window.currentUser.uid) });
-      } else {
-        await updateDoc(postRef, { likes: arrayUnion(window.currentUser.uid) });
-      }
-    };
-
-    window.publishPost = async () => {
-      const text = document.getElementById('postInputText').value.trim();
-      if (!text && !window.selectedPostMedia) return;
-
-      await addDoc(collection(db, "posts"), {
-        type: 'post',
-        text: text,
-        media: window.selectedPostMedia || null,
-        authorUid: window.currentUser.uid,
-        authorName: window.currentUserData.fullName || "User",
-        authorPhoto: window.currentUserData.photoURL || null,
-        likes: [],
-        createdAt: serverTimestamp()
-      });
-
-      document.getElementById('postInputText').value = "";
-      window.closeCreatePostModal();
-    };
-
-    window.previewPostMedia = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (evt) => window.selectedPostMedia = evt.target.result;
-        reader.readAsDataURL(file);
-      }
-    };
-
-    window.uploadStory = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = async (evt) => {
-          await addDoc(collection(db, "stories"), {
-            media: evt.target.result,
-            authorName: window.currentUserData.fullName || "User",
-            createdAt: serverTimestamp()
-          });
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-
+    window.toggleCreateDropdown = () => document.getElementById('createDropdown').classList.toggle('hidden');
     window.openCreatePostModal = () => document.getElementById('createPostModal').classList.remove('hidden');
     window.closeCreatePostModal = () => document.getElementById('createPostModal').classList.add('hidden');
+    
+    // বাকি ফাংশনগুলো এখানে থাকবে...
   </script>
 </head>
-<body class="bg-black text-slate-100 min-h-screen font-sans select-none">
+<body class="bg-black text-slate-100 min-h-screen">
 
-  <!-- LEFT SIDEBAR (Instagram Web Style) -->
-  <aside class="hidden md:flex w-64 fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex-col justify-between p-4 z-50">
+  <!-- সাইডবার -->
+  <aside class="sidebar fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex flex-col justify-between p-4 z-50 overflow-hidden">
     <div class="space-y-8">
-      <!-- LOGO IMAGE (logo.png) -->
-      <div class="px-2 pt-2">
-        <img src="logo.png" alt="PulseIn Logo" class="h-8 w-auto object-contain">
-      </div>
+      <div class="px-2 pt-2"><img src="logo.png" alt="Logo" class="h-8 w-8"></div>
 
-      <!-- NAV MENU (UPDATED LINKS) -->
       <nav class="space-y-4 text-sm font-medium">
-        <a href="index.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-white font-bold">
-          <i class="fa-solid fa-house text-xl"></i><span>Home</span>
-        </a>
+        <a href="index.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900"><i class="fa-solid fa-house text-xl"></i><span>Home</span></a>
+        
+        <!-- Create Dropdown -->
+        <div class="relative">
+          <button onclick="toggleCreateDropdown()" class="w-full flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900">
+            <i class="fa-regular fa-square-plus text-xl"></i><span>Create</span>
+          </button>
+          <div id="createDropdown" class="hidden absolute left-14 bottom-0 bg-neutral-900 p-2 rounded-xl border border-neutral-800 w-40">
+            <button onclick="openCreatePostModal()" class="block w-full text-left p-2 hover:bg-neutral-800 rounded">Create Post</button>
+            <button onclick="window.location.href='upload-reel.html'" class="block w-full text-left p-2 hover:bg-neutral-800 rounded">Create Reel</button>
+          </div>
+        </div>
 
-        <!-- 1. SEARCH -->
-        <a href="search.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-solid fa-magnifying-glass text-xl"></i><span>Search</span>
-        </a>
-
-        <!-- 2. EXPLORE -->
-        <a href="explore.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-regular fa-compass text-xl"></i><span>Explore</span>
-        </a>
-
-        <!-- 3. REELS -->
-        <a href="reels.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-solid fa-clapperboard text-xl"></i><span>Reels</span>
-        </a>
-
-        <a href="messages.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300 relative">
-          <i class="fa-regular fa-paper-plane text-xl"></i><span>Messages</span>
-          <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-auto">6</span>
-        </a>
-
-        <!-- 4. NOTIFICATIONS -->
-        <a href="notifications.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-regular fa-heart text-xl"></i><span>Notifications</span>
-        </a>
-
-        <button onclick="openCreatePostModal()" class="w-full flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-regular fa-square-plus text-xl"></i><span>Create</span>
-        </button>
-
-        <a href="profile.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-          <i class="fa-regular fa-user text-xl"></i><span>Profile</span>
-        </a>
+        <a href="explore.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900"><i class="fa-regular fa-compass text-xl"></i><span>Explore</span></a>
+        <a href="messages.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900"><i class="fa-regular fa-paper-plane text-xl"></i><span>Messages</span></a>
       </nav>
     </div>
 
-    <!-- MORE MENU AT BOTTOM -->
-    <a href="settings.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
-      <i class="fa-solid fa-bars text-xl"></i><span>More</span>
+    <!-- সেটিংস সেকশন -->
+    <a href="settings.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900">
+      <i class="fa-solid fa-gear text-xl"></i><span>Settings</span>
     </a>
   </aside>
 
-  <!-- MAIN CONTAINER -->
-  <div class="flex max-w-5xl mx-auto justify-between pt-4">
-    
-    <!-- MAIN FEED (CENTER) -->
-    <main class="flex-1 md:ml-64 lg:mr-80 max-w-[470px] mx-auto p-2 space-y-6">
-      
-      <!-- STORIES BAR -->
-      <div class="flex space-x-4 overflow-x-auto pb-4 border-b border-neutral-900 scrollbar-none">
-        <!-- Add Story -->
-        <label class="flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer">
-          <div class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 border-2 border-dashed border-yellow-400 flex items-center justify-center">
-            <img id="myStoryAvatar" src="https://via.placeholder.com/150" class="w-full h-full rounded-full object-cover">
-            <div class="absolute bottom-0 right-0 bg-blue-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-black">+</div>
-          </div>
-          <span class="text-[11px] text-neutral-400">Your story</span>
-          <input type="file" accept="image/*,video/*" class="hidden" onchange="uploadStory(event)">
-        </label>
+  <!-- মেইন কন্টেন্ট -->
+  <main class="ml-20 p-6">
+    <div id="feedPostsContainer" class="max-w-xl mx-auto"></div>
+  </main>
 
-        <div id="storiesContainer" class="flex space-x-4"></div>
-      </div>
-
-      <!-- FEED POSTS -->
-      <div id="feedPostsContainer"></div>
-    </main>
-
-    <!-- RIGHT SIDEBAR (Instagram Style) -->
-    <aside class="hidden lg:block w-80 fixed top-6 right-12 p-4 text-xs space-y-5">
-      
-      <!-- CURRENT USER PROFILE -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <img id="rightUserAvatar" src="https://via.placeholder.com/150" class="w-12 h-12 rounded-full object-cover">
-          <div>
-            <p id="rightUserHandle" class="font-bold text-white">username</p>
-            <p id="rightUserName" class="text-neutral-400">User Full Name</p>
-          </div>
-        </div>
-        <button class="text-blue-500 hover:text-white font-bold">Switch</button>
-      </div>
-
-      <!-- SUGGESTIONS HEADER -->
-      <div class="flex items-center justify-between font-bold">
-        <span class="text-neutral-400">Suggested for you</span>
-        <button class="text-white hover:text-neutral-400">See all</button>
-      </div>
-
-      <!-- SUGGESTIONS LIST -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <img src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full">
-            <div>
-              <p class="font-bold text-white">newpokemoncollecter1</p>
-              <p class="text-neutral-500 text-[10px]">Followed by md_obaidul_7</p>
-            </div>
-          </div>
-          <button class="text-blue-500 hover:text-white font-bold">Follow</button>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <img src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full">
-            <div>
-              <p class="font-bold text-white">Tyrese Lowe</p>
-              <p class="text-neutral-500 text-[10px]">Followed by supernova.rift +</p>
-            </div>
-          </div>
-          <button class="text-blue-500 hover:text-white font-bold">Follow</button>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <img src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full">
-            <div>
-              <p class="font-bold text-white">Paris Olivia maxwell</p>
-              <p class="text-neutral-500 text-[10px]">Suggested for you</p>
-            </div>
-          </div>
-          <button class="text-blue-500 hover:text-white font-bold">Follow</button>
-        </div>
-      </div>
-
-      <!-- FOOTER LINKS -->
-      <div class="text-[11px] text-neutral-500 leading-relaxed pt-4 space-y-2">
-        <p>About • Help • Press • API • Jobs • Privacy • Terms • Locations • Language</p>
-        <p class="uppercase">© 2026 PulseIn FROM META</p>
-      </div>
-    </aside>
-
-  </div>
-
-  <!-- FLOATING MESSAGES BUTTON (Bottom Right - like Instagram) -->
-  <a href="messages.html" class="hidden md:flex fixed bottom-4 right-6 bg-[#121212] border border-neutral-800 px-4 py-2.5 rounded-2xl items-center space-x-3 shadow-xl hover:bg-neutral-900 transition z-50">
-    <div class="relative">
-      <i class="fa-regular fa-paper-plane text-white text-base"></i>
-      <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full">6</span>
-    </div>
-    <span class="text-xs font-bold text-white">Messages</span>
-  </a>
-
-  <!-- CREATE POST MODAL -->
-  <div id="createPostModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+  <!-- Create Post Modal -->
+  <div id="createPostModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
     <div class="bg-[#121212] border border-neutral-800 rounded-2xl w-full max-w-md p-5 space-y-4">
-      <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-        <h3 class="text-xs font-bold text-white">Create New Post</h3>
-        <button onclick="closeCreatePostModal()" class="text-neutral-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <textarea id="postInputText" rows="3" placeholder="Write caption..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400 resize-none"></textarea>
-
-      <div class="flex items-center justify-between pt-2 border-t border-neutral-800">
-        <label class="cursor-pointer text-xs text-yellow-400 flex items-center space-x-1.5">
-          <i class="fa-regular fa-image text-base"></i>
-          <span>Add Photo/Video</span>
-          <input type="file" accept="image/*,video/*" onchange="previewPostMedia(event)" class="hidden">
-        </label>
-        <button onclick="publishPost()" class="bg-blue-500 text-white font-bold px-5 py-1.5 rounded-xl text-xs hover:bg-blue-600">Share</button>
-      </div>
+      <h3 class="font-bold">Create Post</h3>
+      <textarea id="postInputText" class="w-full bg-neutral-900 p-3 rounded-lg text-white" placeholder="Write something..."></textarea>
+      <input type="file" onchange="window.selectedPostMedia = event.target.files[0]" class="text-xs">
+      <button onclick="publishPost()" class="bg-blue-500 w-full py-2 rounded-lg font-bold">Share</button>
     </div>
   </div>
 

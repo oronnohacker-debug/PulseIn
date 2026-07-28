@@ -37,26 +37,26 @@
             <i class="fa-solid fa-house text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Home</span>
           </a>
-          <button onclick="alert('Search option clicked!')" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full text-left">
+          <a href="search.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
             <i class="fa-solid fa-magnifying-glass text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Search</span>
-          </button>
-          <button onclick="alert('Explore section coming soon!')" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full text-left">
+          </a>
+          <a href="explore.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
             <i class="fa-regular fa-compass text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Explore</span>
-          </button>
-          <button onclick="alert('Reels section coming soon!')" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full text-left">
+          </a>
+          <a href="reels.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
             <i class="fa-solid fa-clapperboard text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Reels</span>
-          </button>
+          </a>
           <button id="btnOpenMessagesNav" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full text-left">
             <i class="fa-regular fa-paper-plane text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Messages</span>
           </button>
-          <button onclick="alert('No new notifications')" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full text-left">
+          <a href="notifications.html" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition">
             <i class="fa-regular fa-heart text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Notifications</span>
-          </button>
+          </a>
           <button id="btnCreatePost" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full text-left">
             <i class="fa-regular fa-square-plus text-xl w-6 text-center"></i>
             <span class="hidden xl:inline text-sm">Create</span>
@@ -70,10 +70,6 @@
 
       <!-- BOTTOM SIDEBAR OPTIONS -->
       <div class="space-y-1">
-        <button onclick="alert('More options coming soon!')" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 text-neutral-300 hover:text-white transition w-full text-left">
-          <i class="fa-solid fa-bars text-xl w-6 text-center"></i>
-          <span class="hidden xl:inline text-sm">More</span>
-        </button>
         <button id="logoutBtn" class="flex items-center space-x-4 p-3 rounded-lg text-red-500 hover:bg-neutral-900 transition w-full text-left">
           <i class="fa-solid fa-right-from-bracket text-xl w-6 text-center"></i>
           <span class="hidden xl:inline text-sm font-bold">Logout</span>
@@ -134,13 +130,11 @@
             <p id="sideMyName" class="text-neutral-500 text-[11px]">User Name</p>
           </div>
         </div>
-        <button class="text-blue-500 hover:text-white font-bold text-xs transition">Switch</button>
       </div>
 
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold text-neutral-400">Suggested for you</h3>
-          <button class="text-[11px] font-bold text-white hover:text-neutral-400">See All</button>
         </div>
         <div id="suggestedUsersContainer" class="space-y-3"></div>
       </div>
@@ -154,12 +148,11 @@
 
   </div>
 
-  <!-- FLOATING MESSAGE BOX WIDGET (Instagram Bottom Right Popup) -->
+  <!-- FLOATING MESSAGE BOX WIDGET -->
   <div class="fixed bottom-0 right-6 z-50 flex flex-col items-end">
     
-    <!-- MESSAGES POPUP WINDOW (Hidden by Default) -->
+    <!-- MESSAGES POPUP WINDOW -->
     <div id="msgPopupBox" class="hidden w-80 h-96 bg-neutral-900 border border-neutral-800 rounded-t-2xl shadow-2xl flex flex-col mb-2 overflow-hidden transition-all">
-      <!-- Popup Header -->
       <div class="p-3 bg-neutral-800/80 border-b border-neutral-700 flex justify-between items-center">
         <span class="font-bold text-sm text-white flex items-center space-x-2">
           <i class="fa-regular fa-paper-plane text-blue-400"></i>
@@ -169,7 +162,6 @@
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-      <!-- Popup Content -->
       <div class="flex-1 p-4 overflow-y-auto space-y-3">
         <p class="text-xs text-neutral-400 text-center">Select a user to chat</p>
         <div id="popupUsersList" class="space-y-2"></div>
@@ -382,10 +374,8 @@
       reader.readAsDataURL(file);
     }
 
+    // ALL STORIES DISPLAY (NO RESTRICTION)
     function listenToStories() {
-      const myUid = window.currentUser.uid;
-      const myFollowing = window.currentUserData?.following || [];
-
       const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
         const container = document.getElementById('storiesContainer');
@@ -397,14 +387,12 @@
           const storyId = docSnap.id;
           const authorUser = window.allUsersMap[s.authorUid] || {};
 
-          if (s.authorUid === myUid) return;
-
           const authorAvatar = authorUser.photoURL || DEFAULT_AVATAR;
           const authorName = authorUser.username || authorUser.fullName || s.authorName || 'user';
 
           const storyDiv = document.createElement('div');
           storyDiv.className = "flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer";
-          storyDiv.onclick = () => alert("Story viewing coming soon!");
+          storyDiv.onclick = () => window.location.href = `story.html?storyId=${storyId}`;
 
           storyDiv.innerHTML = `
             <div class="w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 hover:scale-105 transition transform">
@@ -518,8 +506,8 @@
                 <p class="text-neutral-500 text-[10px] truncate w-24">${name}</p>
               </div>
             </div>
-            <button onclick="alert('Follow feature clicked')" class="text-blue-500 hover:text-white font-bold text-xs transition">
-              Follow
+            <button onclick="window.location.href='profile.html?uid=${userId}'" class="text-blue-500 hover:text-white font-bold text-xs transition">
+              View Profile
             </button>
           `;
           container.appendChild(div);

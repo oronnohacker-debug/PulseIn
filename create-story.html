@@ -11,36 +11,48 @@
 
   <!-- LEFT EDITOR SIDEBAR -->
   <aside class="w-80 border-r border-slate-800 p-6 flex flex-col justify-between bg-slate-950">
-    <div class="space-y-6">
+    <div class="space-y-6 overflow-y-auto">
       <div class="flex justify-between items-center">
         <h1 class="text-lg font-bold text-cyan-400">Create Story</h1>
         <a href="index.html" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark text-lg"></i></a>
       </div>
 
-      <!-- Add Text -->
+      <!-- 1. SELECT MEDIA FILE (IMAGE/VIDEO) -->
       <div class="space-y-2">
-        <label class="text-xs font-bold text-slate-400">Add Text</label>
-        <input type="text" id="storyText" placeholder="Type text..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-500">
+        <label class="text-xs font-bold text-slate-400"><i class="fa-regular fa-image text-cyan-400"></i> Select Media File</label>
+        <input type="file" id="storyMediaInput" accept="image/*,video/*" class="w-full bg-slate-900 border border-slate-800 rounded-xl text-xs px-3 py-2 text-slate-400 focus:outline-none">
       </div>
 
-      <!-- Music Selection -->
+      <!-- 2. ADD TEXT -->
       <div class="space-y-2">
-        <label class="text-xs font-bold text-slate-400"><i class="fa-solid fa-music text-pink-400"></i> Add Song / Music</label>
-        <select class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none">
-          <option>Select Song...</option>
-          <option>Trending — Drake Style Beats</option>
-          <option>Lo-Fi Chill Vibe</option>
-          <option>Aesthetic Acoustic Guitar</option>
+        <label class="text-xs font-bold text-slate-400">Add Text Overlay</label>
+        <input type="text" id="storyTextOverlay" placeholder="Type story text..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <!-- 3. ADD MUSIC / AUDIO -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-400"><i class="fa-solid fa-music text-pink-400"></i> Choose Background Music</label>
+        <select id="storySongSelect" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-200">
+          <option value="">None (No Music)</option>
+          <option value="song1">Trending — Drake Style Beats</option>
+          <option value="song2">Chill Lo-Fi Summer Vibe</option>
+          <option value="song3">Aesthetic Acoustic Guitar</option>
         </select>
+        <div class="pt-1">
+          <label class="cursor-pointer text-[11px] text-cyan-400 hover:underline">
+            <i class="fa-solid fa-upload"></i> Upload Custom Song (MP3)
+            <input type="file" accept="audio/mp3" class="hidden">
+          </label>
+        </div>
       </div>
 
-      <!-- Tag / Mention Friend -->
+      <!-- 4. MENTION / TAG -->
       <div class="space-y-2">
-        <label class="text-xs font-bold text-slate-400"><i class="fa-solid fa-at text-cyan-400"></i> Mention / Tag Friend</label>
-        <input type="text" placeholder="@username" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-500">
+        <label class="text-xs font-bold text-slate-400"><i class="fa-solid fa-at text-cyan-400"></i> Tag / Mention Friend</label>
+        <input type="text" placeholder="@username" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none">
       </div>
 
-      <!-- Emoji Picker Bar -->
+      <!-- 5. EMOJIS -->
       <div class="space-y-2">
         <label class="text-xs font-bold text-slate-400">Quick Emojis</label>
         <div class="flex space-x-2 text-xl bg-slate-900 p-2 rounded-xl border border-slate-800 justify-around cursor-pointer">
@@ -50,17 +62,25 @@
     </div>
 
     <!-- Share Button -->
-    <button class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-2.5 rounded-xl text-xs transition">Share to Story</button>
+    <button class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-2.5 rounded-xl text-xs transition">Share Story</button>
   </aside>
 
-  <!-- CANVA PREVIEW AREA -->
+  <!-- STORY PREVIEW CANVAS AREA -->
   <main class="flex-1 flex items-center justify-center bg-black/90 relative">
-    <div class="w-72 h-[500px] bg-slate-900 rounded-3xl border border-slate-800 relative overflow-hidden flex flex-col justify-center items-center p-4 text-center">
-      <div class="absolute top-4 left-4 flex items-center space-x-2">
-        <img src="https://i.pravatar.cc/100?img=33" class="w-8 h-8 rounded-full">
-        <span class="text-xs font-bold">oron.broh</span>
+    <div class="w-72 h-[500px] bg-slate-900 rounded-3xl border border-slate-800 relative overflow-hidden flex flex-col justify-between p-4 shadow-2xl">
+      <!-- Story Top Bar -->
+      <div class="flex items-center space-x-2 z-10">
+        <img src="https://i.pravatar.cc/100?img=33" class="w-8 h-8 rounded-full border border-slate-700">
+        <div>
+          <span class="text-xs font-bold block">oron.broh</span>
+          <span class="text-[9px] text-slate-400"><i class="fa-solid fa-music"></i> Song Selected</span>
+        </div>
       </div>
-      <p id="previewText" class="text-xl font-black text-cyan-400 drop-shadow-lg">Your Story Preview</p>
+
+      <!-- Preview Text Overlay -->
+      <div class="text-center my-auto z-10">
+        <p id="storyPreviewText" class="text-xl font-black text-cyan-400 drop-shadow-lg">Your Story Preview</p>
+      </div>
     </div>
   </main>
 

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore • PulseIn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCPjBq74KCEgeO4MK6EZFjMuA3ju3s3Wpc",
+      authDomain: "echoo-325d4.firebaseapp.com",
+      projectId: "echoo-325d4",
+      storageBucket: "echoo-325d4.firebasestorage.app",
+      messagingSenderId: "694671555312",
+      appId: "1:694671555312:web:12b3bdf72ff02943eba035"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        loadExploreGrid();
+      }
+    });
+
+    async function loadExploreGrid() {
+      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+      const grid = document.getElementById('exploreGrid');
+      grid.innerHTML = "";
+
+      querySnapshot.forEach((docSnap) => {
+        const post = docSnap.data();
+        if (!post.media) return; // Media না থাকলে এক্সপ্লোরে দেখাবে না
+
+        const isVideo = post.mediaType && post.mediaType.startsWith('video/');
+        const likeCount = post.likes ? post.likes.length : 0;
+
+        const card = document.createElement('div');
+        card.className = "relative group aspect-square bg-neutral-900 rounded-md overflow-hidden cursor-pointer";
+        
+        card.innerHTML = `
+          ${isVideo ? 
+            `<video src="${post.media}" class="w-full h-full object-cover"></video>` : 
+            `<img src="${post.media}" class="w-full h-full object-cover">`
+          }
+
+          ${isVideo ? `<div class="absolute top-2 right-2 text-white text-xs"><i class="fa-solid fa-play"></i></div>` : ''}
+
+          <!-- Overlay on Hover -->
+          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center space-x-6 text-white font-bold text-sm">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-heart"></i>
+              <span>${likeCount}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-comment"></i>
+              <span>0</span>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+  </script>
+</head>
+<body class="bg-black text-slate-100 min-h-screen font-sans select-none">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="hidden md:flex w-64 fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex-col justify-between p-4 z-50">
+    <div class="space-y-8">
+      <div class="px-2 pt-2">
+        <img src="logo.png" alt="PulseIn Logo" class="h-8 w-auto object-contain">
+      </div>
+
+      <nav class="space-y-4 text-sm font-medium">
+        <a href="index.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-solid fa-house text-xl"></i><span>Home</span></a>
+        <a href="search.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-solid fa-magnifying-glass text-xl"></i><span>Search</span></a>
+        <a href="explore.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-white font-bold"><i class="fa-regular fa-compass text-xl"></i><span>Explore</span></a>
+        <a href="reels.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-solid fa-clapperboard text-xl"></i><span>Reels</span></a>
+        <a href="messages.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300 relative">
+          <i class="fa-regular fa-paper-plane text-xl"></i><span>Messages</span>
+          <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-auto">6</span>
+        </a>
+        <a href="notifications.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-regular fa-heart text-xl"></i><span>Notifications</span></a>
+        <a href="profile.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-regular fa-user text-xl"></i><span>Profile</span></a>
+      </nav>
+    </div>
+
+    <a href="settings.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
+      <i class="fa-solid fa-bars text-xl"></i><span>More</span>
+    </a>
+  </aside>
+
+  <!-- MAIN EXPLORE GRID -->
+  <main class="md:ml-64 max-w-4xl mx-auto p-4 pt-6">
+    <div id="exploreGrid" class="grid grid-cols-3 gap-1 md:gap-4">
+      <!-- Firebase Dynamic Posts Load Here -->
+    </div>
+  </main>
+
+</body>
+</html>

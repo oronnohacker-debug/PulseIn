@@ -41,14 +41,14 @@
           window.currentUserData = userDoc.data();
           updateUIWithUserData(window.currentUserData);
           listenToRealtimePosts();
-          loadRealSuggestions(); // রিয়েল ইউজার সাজেশন লোড
+          loadRealSuggestions();
+          loadStories();
         } else {
           window.location.href = "setup-profile.html";
         }
       }
     });
 
-    // ইউজার প্রোফাইল পিকচার ও তথ্য রেন্ডার
     function updateUIWithUserData(data) {
       document.getElementById('sideProfileName').innerText = data.fullName || 'User';
       document.getElementById('sideUsername').innerText = '@' + (data.username || 'username');
@@ -56,30 +56,33 @@
       const avatarContainer = document.getElementById('sideAvatarContainer');
       const postAvatarContainer = document.getElementById('postAvatarContainer');
 
-      // প্রোফাইল ফটো থাকলে ফটো দেখাবে, না থাকলে ইনিশিয়াল দেখাবে
-      if (data.photoURL) {
-        avatarContainer.innerHTML = `<img src="${data.photoURL}" class="w-11 h-11 rounded-full object-cover border border-yellow-400">`;
-        postAvatarContainer.innerHTML = `<img src="${data.photoURL}" class="w-10 h-10 rounded-full object-cover border border-yellow-400">`;
-      } else {
-        const letters = (data.fullName || 'U').substring(0, 2).toUpperCase();
-        avatarContainer.innerHTML = `<div class="w-11 h-11 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-sm">${letters}</div>`;
-        postAvatarContainer.innerHTML = `<div class="w-10 h-10 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs">${letters}</div>`;
-      }
+      const avatarHTML = data.photoURL 
+        ? `<img src="${data.photoURL}" class="w-11 h-11 rounded-full object-cover border border-yellow-400">`
+        : `<div class="w-11 h-11 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-sm">${(data.fullName || 'U').substring(0, 2).toUpperCase()}</div>`;
+
+      avatarContainer.innerHTML = avatarHTML;
+      postAvatarContainer.innerHTML = data.photoURL 
+        ? `<img src="${data.photoURL}" class="w-10 h-10 rounded-full object-cover border border-yellow-400">`
+        : `<div class="w-10 h-10 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs">${(data.fullName || 'U').substring(0, 2).toUpperCase()}</div>`;
     }
 
-    // ফায়ারবেস থেকে আসল ইউজার সাজেশন লোড
+    // REAL SUGGESTIONS WITH FOLLOW BUTTON & PROFILE LINKS
     async function loadRealSuggestions() {
       const container = document.getElementById('suggestionsContainer');
       container.innerHTML = "";
 
       try {
-        const usersSnap = await getDocs(query(collection(db, "users"), limit(5)));
+        const usersSnap = await getDocs(query(collection(db, "users"), limit(10)));
         let foundOthers = false;
+
+        const myFollowing = window.currentUserData.following || [];
 
         usersSnap.forEach((docSnap) => {
           const user = docSnap.data();
-          if (user.uid !== window.currentUser.uid) { // নিজের আইডি বাদ দিয়ে অন্য আইডিগুলো দেখাবে
+          if (user.uid !== window.currentUser.uid) {
             foundOthers = true;
+            const isFollowing = myFollowing.includes(user.uid);
+
             const userCard = document.createElement('div');
             userCard.className = "flex items-center justify-between p-2 rounded-xl hover:bg-neutral-900 transition";
             
@@ -88,28 +91,99 @@
               : `<div class="w-9 h-9 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs">${(user.fullName || 'U').substring(0, 2).toUpperCase()}</div>`;
 
             userCard.innerHTML = `
-              <a href="profile.html?uid=${user.uid}" class="flex items-center space-x-3 cursor-pointer">
+              <a href="profile.html?uid=${user.uid}" class="flex items-center space-x-3 cursor-pointer group">
                 ${avatar}
                 <div>
-                  <p class="text-xs font-bold text-white hover:underline">${user.fullName || 'User'}</p>
+                  <p class="text-xs font-bold text-white group-hover:underline">${user.fullName || 'User'}</p>
                   <p class="text-[10px] text-neutral-400">@${user.username || 'user'}</p>
                 </div>
               </a>
-              <a href="profile.html?uid=${user.uid}" class="text-xs font-bold text-yellow-400 hover:text-yellow-300">View</a>
+              <button onclick="window.toggleFollow('${user.uid}', this)" class="text-xs font-bold ${isFollowing ? 'text-neutral-400 bg-neutral-800' : 'text-black bg-yellow-400 hover:bg-yellow-300'} px-3 py-1.5 rounded-xl transition">
+                ${isFollowing ? 'Following' : 'Follow'}
+              </button>
             `;
             container.appendChild(userCard);
           }
         });
 
         if (!foundOthers) {
-          container.innerHTML = `<p class="text-xs text-neutral-400 text-center py-2">No other users joined yet.</p>`;
+          container.innerHTML = `<p class="text-xs text-neutral-400 text-center py-2">No other users yet.</p>`;
         }
       } catch (e) {
         container.innerHTML = `<p class="text-xs text-neutral-500 text-center py-2">Error loading suggestions.</p>`;
       }
     }
 
-    // পোস্ট ফিড ফায়ারবেস রিয়েলটাইম লোড
+    // FOLLOW / UNFOLLOW SYSTEM
+    window.toggleFollow = async (targetUid, btn) => {
+      const myRef = doc(db, "users", window.currentUser.uid);
+      const targetRef = doc(db, "users", targetUid);
+
+      const isFollowing = window.currentUserData.following && window.currentUserData.following.includes(targetUid);
+
+      if (isFollowing) {
+        await updateDoc(myRef, { following: arrayRemove(targetUid) });
+        await updateDoc(targetRef, { followers: arrayRemove(window.currentUser.uid) });
+        window.currentUserData.following = window.currentUserData.following.filter(id => id !== targetUid);
+        btn.innerText = "Follow";
+        btn.className = "text-xs font-bold text-black bg-yellow-400 hover:bg-yellow-300 px-3 py-1.5 rounded-xl transition";
+      } else {
+        await updateDoc(myRef, { following: arrayUnion(targetUid) });
+        await updateDoc(targetRef, { followers: arrayUnion(window.currentUser.uid) });
+        if (!window.currentUserData.following) window.currentUserData.following = [];
+        window.currentUserData.following.push(targetUid);
+        btn.innerText = "Following";
+        btn.className = "text-xs font-bold text-neutral-400 bg-neutral-800 px-3 py-1.5 rounded-xl transition";
+      }
+    };
+
+    // REAL TIME STORIES LOADER
+    function loadStories() {
+      const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
+      onSnapshot(q, (snapshot) => {
+        const container = document.getElementById('storiesContainer');
+        container.innerHTML = "";
+
+        snapshot.forEach((docSnap) => {
+          const story = docSnap.data();
+          const storyCircle = document.createElement('a');
+          storyCircle.href = `profile.html?uid=${story.authorUid}`;
+          storyCircle.className = "flex-shrink-0 text-center cursor-pointer group";
+          
+          storyCircle.innerHTML = `
+            <div class="w-16 h-16 rounded-full border-2 border-yellow-400 p-0.5 overflow-hidden group-hover:scale-105 transition">
+              <img src="${story.media}" class="w-full h-full rounded-full object-cover">
+            </div>
+            <span class="text-[10px] text-slate-300 font-medium mt-1 block truncate w-16">${story.authorName}</span>
+          `;
+          container.appendChild(storyCircle);
+        });
+      });
+    }
+
+    // PUBLISH STORY TO FIRESTORE
+    window.uploadStoryFile = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          await addDoc(collection(db, "stories"), {
+            media: e.target.result,
+            authorUid: window.currentUser.uid,
+            authorName: window.currentUserData.fullName || "User",
+            createdAt: serverTimestamp()
+          });
+          alert("Story Uploaded Successfully!");
+        } catch (err) {
+          alert("Error uploading story: " + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // FEED POSTS LOADER
     function listenToRealtimePosts() {
       const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
       onSnapshot(q, (snapshot) => {
@@ -169,7 +243,7 @@
       });
     }
 
-    // পোস্ট ডাটাবেজে পাবলিশ
+    // CREATE POST
     window.publishPost = async () => {
       const text = document.getElementById('postInputText').value.trim();
       if (!text && !window.selectedMediaBase64) {
@@ -226,7 +300,6 @@
         <span class="text-xl font-bold tracking-wider text-yellow-400">PulseIn</span>
       </a>
 
-      <!-- MENU LIST -->
       <nav class="space-y-1">
         <a href="index.html" class="flex items-center space-x-4 p-3 rounded-2xl bg-neutral-900 text-yellow-400 font-bold">
           <i class="fa-solid fa-house text-lg w-6 text-center"></i>
@@ -252,7 +325,6 @@
           <i class="fa-solid fa-chart-line text-lg w-6 text-center"></i>
           <span class="text-sm">Dashboard</span>
         </a>
-        <!-- SETTINGS BUTTON -->
         <a href="settings.html" class="flex items-center space-x-4 p-3 rounded-2xl hover:bg-neutral-900 text-slate-300 hover:text-yellow-400 transition">
           <i class="fa-solid fa-gear text-lg w-6 text-center"></i>
           <span class="text-sm">Settings</span>
@@ -277,7 +349,20 @@
 
     <main class="w-full max-w-lg space-y-6">
 
-      <!-- CREATE POST BOX -->
+      <!-- REAL-TIME STORIES ROW -->
+      <div class="flex space-x-4 overflow-x-auto pb-2 border-b border-neutral-800 scrollbar-none">
+        <label class="flex-shrink-0 text-center cursor-pointer group">
+          <div class="w-16 h-16 rounded-full border-2 border-dashed border-yellow-400 p-0.5 flex items-center justify-center bg-neutral-900 group-hover:scale-105 transition">
+            <i class="fa-solid fa-plus text-yellow-400 text-lg"></i>
+          </div>
+          <span class="text-[10px] text-slate-300 font-medium mt-1 block">Your Story</span>
+          <input type="file" accept="image/*,video/*" onchange="window.uploadStoryFile(event)" class="hidden">
+        </label>
+        
+        <div id="storiesContainer" class="flex space-x-4"></div>
+      </div>
+
+      <!-- CREATE POST BOX (WITH 'POST' TEXT ON BUTTON) -->
       <div class="bg-[#121212] border border-neutral-800 rounded-2xl p-4 space-y-3">
         <div class="flex items-center space-x-3">
           <a href="profile.html" id="postAvatarContainer" class="flex-shrink-0 cursor-pointer">
@@ -297,7 +382,10 @@
             <span>Photo / Video</span>
             <input type="file" id="postMediaInput" accept="image/*,video/*" onchange="previewMedia(event)" class="hidden">
           </label>
-          <button onclick="publishPost()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-5 py-1.5 rounded-xl text-xs transition">Post</button>
+          <!-- 'POST' BUTTON TEXT CLEARLY VISIBLE -->
+          <button onclick="publishPost()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-5 py-1.5 rounded-xl text-xs transition">
+            Post
+          </button>
         </div>
       </div>
 
@@ -305,9 +393,8 @@
       <div id="feedPostsContainer" class="space-y-6"></div>
     </main>
 
-    <!-- RIGHT PANEL (DYNAMIC SUGGESTIONS) -->
+    <!-- RIGHT PANEL (SUGGESTIONS WITH FOLLOW BUTTON) -->
     <aside class="hidden lg:block w-80 space-y-6 pt-2">
-      <!-- Active User Header -->
       <div class="flex items-center justify-between">
         <a href="profile.html" class="flex items-center space-x-3 group cursor-pointer">
           <div id="sideAvatarContainer">
@@ -321,12 +408,9 @@
         <button onclick="userLogout()" class="text-xs font-bold text-yellow-400 hover:underline">Switch</button>
       </div>
 
-      <!-- Real Dynamic Suggestions Area -->
       <div class="border-t border-neutral-800 pt-4 space-y-3">
         <span class="text-xs font-bold text-white block">Suggested for you</span>
-        <div id="suggestionsContainer" class="space-y-2">
-          <!-- Real users load here -->
-        </div>
+        <div id="suggestionsContainer" class="space-y-2"></div>
       </div>
     </aside>
 

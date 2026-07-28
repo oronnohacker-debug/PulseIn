@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PulseIn — Complete App</title>
+  <title>PulseIn — Instagram Style Layout</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
@@ -30,8 +30,6 @@
     window.currentUser = null;
     window.currentUserData = null;
     window.selectedPostMedia = null;
-    window.selectedPostMediaType = null;
-    window.selectedCommentMedia = null;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -42,10 +40,11 @@
         if (userDoc.exists()) {
           window.currentUserData = userDoc.data();
           const avatarUrl = window.currentUserData.photoURL || 'https://via.placeholder.com/150';
+          
           document.getElementById('myStoryAvatar').src = avatarUrl;
-          document.getElementById('leftUserAvatar').src = avatarUrl;
-          document.getElementById('leftUserName').innerText = window.currentUserData.fullName || 'User';
-          document.getElementById('leftUserHandle').innerText = '@' + (window.currentUserData.username || 'user');
+          document.getElementById('rightUserAvatar').src = avatarUrl;
+          document.getElementById('rightUserName').innerText = window.currentUserData.fullName || 'User';
+          document.getElementById('rightUserHandle').innerText = window.currentUserData.username || 'user';
           
           listenToRealtimePosts();
           listenToStories();
@@ -67,10 +66,10 @@
           div.className = "flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer";
           div.onclick = () => window.open(s.media, '_blank');
           div.innerHTML = `
-            <div class="w-14 h-14 rounded-full p-[2px] border-2 border-yellow-400 overflow-hidden">
-              <img src="${s.media}" class="w-full h-full rounded-full object-cover">
+            <div class="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600">
+              <img src="${s.media}" class="w-full h-full rounded-full object-cover border-2 border-black">
             </div>
-            <span class="text-[10px] text-neutral-300 truncate w-14 text-center">${s.authorName}</span>
+            <span class="text-[11px] text-neutral-300 truncate w-16 text-center">${s.authorName}</span>
           `;
           container.appendChild(div);
         });
@@ -94,77 +93,61 @@
           let mediaHTML = "";
           if (post.media) {
             if (post.mediaType && post.mediaType.startsWith('video/')) {
-              mediaHTML = `<video src="${post.media}" controls class="w-full rounded-xl max-h-96 object-cover border border-neutral-800 mt-2"></video>`;
+              mediaHTML = `<video src="${post.media}" controls class="w-full rounded-lg max-h-[500px] object-cover mt-2 border border-neutral-900"></video>`;
             } else {
-              mediaHTML = `<img src="${post.media}" class="w-full rounded-xl max-h-96 object-cover border border-neutral-800 mt-2">`;
+              mediaHTML = `<img src="${post.media}" class="w-full rounded-lg max-h-[500px] object-cover mt-2 border border-neutral-900">`;
             }
           }
 
-          let songHTML = "";
-          if (post.songUrl) {
-            songHTML = `
-              <div class="flex items-center space-x-2 bg-neutral-900 p-2 rounded-xl border border-neutral-800 text-xs text-yellow-400 mt-2">
-                <i class="fa-solid fa-music animate-spin"></i>
-                <span class="font-semibold truncate">${post.songTitle || 'Selected Song'}</span>
-                <audio src="${post.songUrl}" controls class="h-6 w-36 ml-auto"></audio>
-              </div>
-            `;
-          }
-
           const authorAvatar = post.authorPhoto 
-            ? `<img src="${post.authorPhoto}" class="w-9 h-9 rounded-full object-cover border border-neutral-700">`
-            : `<div class="w-9 h-9 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs border border-neutral-700">${(post.authorName || 'U').substring(0, 2).toUpperCase()}</div>`;
+            ? `<img src="${post.authorPhoto}" class="w-8 h-8 rounded-full object-cover border border-neutral-800">`
+            : `<div class="w-8 h-8 rounded-full bg-yellow-500 text-black font-bold flex items-center justify-center text-xs">${(post.authorName || 'U').substring(0, 2).toUpperCase()}</div>`;
 
           const postCard = document.createElement('div');
-          postCard.className = "bg-[#121212] border border-neutral-800 rounded-2xl p-4 space-y-3";
+          postCard.className = "border-b border-neutral-800 pb-6 mb-6 space-y-3 max-w-[470px] mx-auto";
           postCard.innerHTML = `
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-3">
-                ${authorAvatar}
-                <div>
+                <div class="p-[1.5px] bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full">
+                  ${authorAvatar}
+                </div>
+                <div class="flex items-center space-x-2">
                   <h4 class="text-xs font-bold text-white">${post.authorName || 'User'}</h4>
-                  <p class="text-[10px] text-neutral-400">@${post.username || 'user'}</p>
+                  <span class="text-neutral-500 text-[10px]">• 1w</span>
                 </div>
               </div>
               
               <div class="flex items-center space-x-2">
-                ${isMyPost ? `<button onclick="window.editPost('${postId}', '${encodeURIComponent(post.text || '')}')" class="text-neutral-400 hover:text-yellow-400 text-xs"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
-                <button onclick="window.deletePost('${postId}')" class="text-neutral-400 hover:text-red-500 text-xs" title="Delete Post"><i class="fa-solid fa-trash"></i></button>
+                ${isMyPost ? `<button onclick="window.editPost('${postId}', '${encodeURIComponent(post.text || '')}')" class="text-neutral-400 hover:text-white text-xs"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+                <button onclick="window.deletePost('${postId}')" class="text-neutral-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>
 
-            ${post.text ? `<p class="text-xs text-slate-200 leading-relaxed">${post.text}</p>` : ''}
-            ${songHTML}
             ${mediaHTML}
+            ${post.text ? `<p class="text-xs text-slate-200 mt-2">${post.text}</p>` : ''}
 
-            <div class="flex items-center justify-between pt-2 border-t border-neutral-800 text-neutral-400 text-sm">
-              <button onclick="window.toggleLikeFirebase('${postId}', ${isLiked})" class="flex items-center space-x-1.5 ${isLiked ? 'text-red-500 font-bold' : ''}">
-                <i class="${isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i>
-                <span class="text-xs">${likeCount}</span>
-              </button>
-              <button onclick="window.toggleCommentBox('${postId}')" class="flex items-center space-x-1.5">
-                <i class="fa-regular fa-comment"></i>
-                <span class="text-xs" id="commentCount-${postId}">0</span>
-              </button>
-              <button onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied!');" class="flex items-center space-x-1 text-xs"><i class="fa-regular fa-paper-plane"></i></button>
+            <div class="flex items-center justify-between pt-1 text-white text-lg">
+              <div class="flex items-center space-x-4">
+                <button onclick="window.toggleLikeFirebase('${postId}', ${isLiked})" class="${isLiked ? 'text-red-500' : 'hover:text-neutral-400'}">
+                  <i class="${isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i>
+                </button>
+                <button onclick="window.toggleCommentBox('${postId}')" class="hover:text-neutral-400">
+                  <i class="fa-regular fa-comment"></i>
+                </button>
+                <button onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied!');" class="hover:text-neutral-400">
+                  <i class="fa-regular fa-paper-plane"></i>
+                </button>
+              </div>
+              <i class="fa-regular fa-bookmark hover:text-neutral-400 cursor-pointer"></i>
             </div>
 
-            <div id="commentSection-${postId}" class="hidden pt-3 border-t border-neutral-800/80 space-y-3">
-              <div id="commentsList-${postId}" class="space-y-2 max-h-48 overflow-y-auto"></div>
-              
-              <div id="commentMediaPreview-${postId}" class="hidden"></div>
+            <p class="text-xs font-bold text-white">${likeCount} likes</p>
 
-              <div class="flex items-center space-x-2">
-                <input type="text" id="commentInput-${postId}" placeholder="Write a comment..." class="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-yellow-400">
-                
-                <button onclick="window.addGifComment('${postId}')" class="text-yellow-400 bg-neutral-800 hover:bg-neutral-700 px-2 py-1 rounded-lg text-xs font-bold">GIF</button>
-                
-                <label class="cursor-pointer text-neutral-400 hover:text-yellow-400">
-                  <i class="fa-regular fa-image text-sm"></i>
-                  <input type="file" accept="image/*" class="hidden" onchange="window.previewCommentImage(event, '${postId}')">
-                </label>
-
-                <button onclick="window.sendComment('${postId}')" class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-3 py-1.5 rounded-xl text-xs">Send</button>
+            <div id="commentSection-${postId}" class="hidden pt-2 space-y-2">
+              <div id="commentsList-${postId}" class="space-y-1 max-h-36 overflow-y-auto"></div>
+              <div class="flex items-center space-x-2 pt-2 border-t border-neutral-900">
+                <input type="text" id="commentInput-${postId}" placeholder="Add a comment..." class="flex-1 bg-transparent text-xs text-white focus:outline-none">
+                <button onclick="window.sendComment('${postId}')" class="text-yellow-400 hover:text-white text-xs font-bold">Post</button>
               </div>
             </div>
           `;
@@ -174,22 +157,12 @@
       });
     }
 
-    // --- EDIT & DELETE ---
     window.deletePost = async (postId) => {
-      if (confirm("Are you sure you want to delete this post?")) {
+      if (confirm("Delete this post?")) {
         await deleteDoc(doc(db, "posts", postId));
       }
     };
 
-    window.editPost = async (postId, encodedText) => {
-      const currentText = decodeURIComponent(encodedText);
-      const newText = prompt("Edit your post caption:", currentText);
-      if (newText !== null && newText.trim() !== "") {
-        await updateDoc(doc(db, "posts", postId), { text: newText.trim() });
-      }
-    };
-
-    // --- COMMENTS SYSTEM ---
     window.toggleCommentBox = (postId) => {
       document.getElementById(`commentSection-${postId}`).classList.toggle('hidden');
     };
@@ -199,62 +172,28 @@
       const q = query(commentsRef, orderBy("createdAt", "asc"));
       onSnapshot(q, (snapshot) => {
         const list = document.getElementById(`commentsList-${postId}`);
-        const countSpan = document.getElementById(`commentCount-${postId}`);
         if (!list) return;
         list.innerHTML = "";
-        countSpan.innerText = snapshot.size;
-
         snapshot.forEach((docSnap) => {
           const c = docSnap.data();
           const item = document.createElement('div');
-          item.className = "bg-neutral-900 p-2 rounded-xl text-xs space-y-1 border border-neutral-800/60";
-          let mediaContent = c.media ? `<img src="${c.media}" class="w-32 rounded-lg mt-1 max-h-32 object-cover">` : '';
-          item.innerHTML = `<span class="font-bold text-yellow-400">${c.authorName}</span><p class="text-slate-200">${c.text || ''}</p>${mediaContent}`;
+          item.className = "text-xs";
+          item.innerHTML = `<span class="font-bold text-white mr-2">${c.authorName}</span><span class="text-slate-300">${c.text || ''}</span>`;
           list.appendChild(item);
         });
       });
     };
 
-    window.previewCommentImage = (event, postId) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          window.selectedCommentMedia = e.target.result;
-          const prev = document.getElementById(`commentMediaPreview-${postId}`);
-          prev.innerHTML = `<img src="${e.target.result}" class="w-16 h-16 object-cover rounded-lg border border-yellow-400">`;
-          prev.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-
-    window.addGifComment = (postId) => {
-      const gifUrl = prompt("Enter GIF URL (or Tenor/Giphy Link):", "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z1dnBpa3E1NXlvaDZid3M2Y2FneWhldmdjZzBxdTllM2lsZ3JmeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/C21GGDOpKT6Z4VuXyn/giphy.gif");
-      if (gifUrl) {
-        window.selectedCommentMedia = gifUrl;
-        const prev = document.getElementById(`commentMediaPreview-${postId}`);
-        prev.innerHTML = `<img src="${gifUrl}" class="w-16 h-16 object-cover rounded-lg border border-yellow-400">`;
-        prev.classList.remove('hidden');
-      }
-    };
-
     window.sendComment = async (postId) => {
       const input = document.getElementById(`commentInput-${postId}`);
       const val = input.value.trim();
-
-      if (!val && !window.selectedCommentMedia) return;
-
+      if (!val) return;
       await addDoc(collection(db, "posts", postId, "comments"), {
         text: val,
-        media: window.selectedCommentMedia || null,
         authorName: window.currentUserData.fullName || "User",
         createdAt: serverTimestamp()
       });
-
       input.value = "";
-      window.selectedCommentMedia = null;
-      document.getElementById(`commentMediaPreview-${postId}`).classList.add('hidden');
     };
 
     window.toggleLikeFirebase = async (postId, currentlyLiked) => {
@@ -266,29 +205,17 @@
       }
     };
 
-    // --- CREATE POST ---
     window.publishPost = async () => {
       const text = document.getElementById('postInputText').value.trim();
-      const songSelect = document.getElementById('postSongSelect');
-      const songUrl = songSelect.value;
-      const songTitle = songSelect.options[songSelect.selectedIndex].text;
-
-      if (!text && !window.selectedPostMedia) {
-        alert("Please write caption or attach media!");
-        return;
-      }
+      if (!text && !window.selectedPostMedia) return;
 
       await addDoc(collection(db, "posts"), {
         type: 'post',
         text: text,
         media: window.selectedPostMedia || null,
-        mediaType: window.selectedPostMediaType || null,
-        songUrl: songUrl || null,
-        songTitle: songUrl ? songTitle : null,
         authorUid: window.currentUser.uid,
         authorName: window.currentUserData.fullName || "User",
         authorPhoto: window.currentUserData.photoURL || null,
-        username: window.currentUserData.username || "user",
         likes: [],
         createdAt: serverTimestamp()
       });
@@ -300,17 +227,12 @@
     window.previewPostMedia = (e) => {
       const file = e.target.files[0];
       if (file) {
-        window.selectedPostMediaType = file.type;
         const reader = new FileReader();
-        reader.onload = (evt) => {
-          window.selectedPostMedia = evt.target.result;
-          document.getElementById('mediaPreviewHolder').innerHTML = `<img src="${evt.target.result}" class="w-full max-h-48 object-cover rounded-xl mt-2 border border-neutral-800">`;
-        };
+        reader.onload = (evt) => window.selectedPostMedia = evt.target.result;
         reader.readAsDataURL(file);
       }
     };
 
-    // --- STORY UPLOAD ---
     window.uploadStory = (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -321,24 +243,8 @@
             authorName: window.currentUserData.fullName || "User",
             createdAt: serverTimestamp()
           });
-          alert("Story Added Successfully!");
         };
         reader.readAsDataURL(file);
-      }
-    };
-
-    // Live Chat Send Function
-    window.sendLiveChat = () => {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if(text) {
-        const chatBox = document.getElementById('chatBox');
-        const msg = document.createElement('div');
-        msg.className = "bg-yellow-400 text-black font-semibold text-xs p-2 rounded-lg self-end ml-auto max-w-[80%]";
-        msg.innerText = text;
-        chatBox.appendChild(msg);
-        input.value = "";
-        chatBox.scrollTop = chatBox.scrollHeight;
       }
     };
 
@@ -346,182 +252,147 @@
     window.closeCreatePostModal = () => document.getElementById('createPostModal').classList.add('hidden');
   </script>
 </head>
-<body class="bg-black text-slate-100 min-h-screen font-sans pb-20 md:pb-0 select-none">
+<body class="bg-black text-slate-100 min-h-screen font-sans select-none">
 
-  <!-- TOP HEADER (Mobile) -->
-  <header class="flex md:hidden items-center justify-between p-4 border-b border-neutral-800 sticky top-0 bg-black/90 backdrop-blur z-40">
-    <h1 class="text-xl font-bold tracking-wider text-yellow-400 flex items-center gap-1">
-      <i class="fa-solid fa-bolt"></i> PulseIn
-    </h1>
-    <div class="flex items-center space-x-3">
-      <button class="relative text-slate-300 text-lg">
-        <i class="fa-regular fa-bell"></i>
-        <span class="absolute -top-1 -right-1 bg-red-500 text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center text-white font-bold">3</span>
-      </button>
-      <a href="messages.html" class="text-slate-300 text-lg"><i class="fa-regular fa-paper-plane"></i></a>
-    </div>
-  </header>
-
-  <div class="flex max-w-7xl mx-auto justify-between">
-    
-    <!-- LEFT SIDEBAR (Desktop) -->
-    <aside class="hidden md:flex w-64 fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex-col justify-between p-4 z-50">
-      <div class="space-y-6">
-        <h1 class="text-2xl font-bold text-yellow-400 tracking-wider flex items-center gap-2">
-          <i class="fa-solid fa-bolt"></i> PulseIn
-        </h1>
-        <nav class="space-y-2">
-          <a href="index.html" class="flex items-center space-x-4 p-3 rounded-xl bg-neutral-900 text-yellow-400 font-bold"><i class="fa-solid fa-house"></i><span>Home</span></a>
-          <a href="upload-reel.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-slate-300"><i class="fa-solid fa-clapperboard"></i><span>Create Reel</span></a>
-          <button onclick="openCreatePostModal()" class="w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-yellow-400 font-bold"><i class="fa-regular fa-square-plus"></i><span>Create Post</span></button>
-          <a href="messages.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-slate-300"><i class="fa-regular fa-paper-plane"></i><span>Messages</span></a>
-          <a href="profile.html" class="flex items-center space-x-4 p-3 rounded-xl hover:bg-neutral-900 text-slate-300"><i class="fa-regular fa-user"></i><span>Profile</span></a>
-        </nav>
+  <!-- LEFT SIDEBAR (Instagram Web Style) -->
+  <aside class="hidden md:flex w-64 fixed top-0 left-0 h-screen bg-black border-r border-neutral-800 flex-col justify-between p-4 z-50">
+    <div class="space-y-8">
+      <!-- LOGO IMAGE (logo.png) -->
+      <div class="px-2 pt-2">
+        <img src="logo.png" alt="PulseIn Logo" class="h-8 w-auto object-contain">
       </div>
 
-      <!-- LEFT SIDEBAR BOTTOM (User Profile & Settings) -->
-      <div class="border-t border-neutral-800 pt-3 flex items-center justify-between">
-        <div class="flex items-center space-x-2 overflow-hidden">
-          <img id="leftUserAvatar" src="https://via.placeholder.com/150" class="w-9 h-9 rounded-full object-cover border border-neutral-700">
-          <div class="truncate">
-            <p id="leftUserName" class="text-xs font-bold text-white truncate">User</p>
-            <p id="leftUserHandle" class="text-[10px] text-neutral-400 truncate">@user</p>
-          </div>
-        </div>
-        <a href="settings.html" class="text-neutral-400 hover:text-white p-2" title="Settings">
-          <i class="fa-solid fa-gear"></i>
+      <!-- NAV MENU -->
+      <nav class="space-y-4 text-sm font-medium">
+        <a href="index.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-white"><i class="fa-solid fa-house text-xl"></i><span>Home</span></a>
+        <a href="#" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-solid fa-magnifying-glass text-xl"></i><span>Search</span></a>
+        <a href="#" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-regular fa-compass text-xl"></i><span>Explore</span></a>
+        <a href="upload-reel.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-solid fa-clapperboard text-xl"></i><span>Reels</span></a>
+        <a href="messages.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300 relative">
+          <i class="fa-regular fa-paper-plane text-xl"></i><span>Messages</span>
+          <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-auto">6</span>
         </a>
-      </div>
-    </aside>
+        <a href="#" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-regular fa-heart text-xl"></i><span>Notifications</span></a>
+        <button onclick="openCreatePostModal()" class="w-full flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-regular fa-square-plus text-xl"></i><span>Create</span></button>
+        <a href="profile.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300"><i class="fa-regular fa-user text-xl"></i><span>Profile</span></a>
+      </nav>
+    </div>
 
-    <!-- MAIN FEED -->
-    <main class="flex-1 md:ml-64 lg:mr-80 max-w-lg mx-auto p-4 space-y-6">
+    <!-- MORE MENU AT BOTTOM -->
+    <a href="settings.html" class="flex items-center space-x-4 p-2.5 rounded-lg hover:bg-neutral-900 text-slate-300">
+      <i class="fa-solid fa-bars text-xl"></i><span>More</span>
+    </a>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div class="flex max-w-5xl mx-auto justify-between pt-4">
+    
+    <!-- MAIN FEED (CENTER) -->
+    <main class="flex-1 md:ml-64 lg:mr-80 max-w-[470px] mx-auto p-2 space-y-6">
       
-      <!-- TOP SEARCH & NOTIFICATION BAR (Desktop) -->
-      <div class="hidden md:flex items-center justify-between gap-3 bg-[#121212] border border-neutral-800 p-2.5 rounded-2xl">
-        <div class="flex items-center gap-2 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-xl flex-1">
-          <i class="fa-solid fa-magnifying-glass text-xs text-neutral-400"></i>
-          <input type="text" placeholder="Search PulseIn..." class="bg-transparent text-xs text-white focus:outline-none w-full">
-        </div>
-        <button class="relative bg-neutral-900 border border-neutral-800 p-2 rounded-xl text-slate-300 hover:text-yellow-400">
-          <i class="fa-regular fa-bell"></i>
-          <span class="absolute -top-1 -right-1 bg-red-500 text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center text-white font-bold">3</span>
-        </button>
-      </div>
-
       <!-- STORIES BAR -->
-      <div class="flex space-x-4 overflow-x-auto pb-2 scrollbar-none border-b border-neutral-800/80">
-        <!-- Story Upload Circle -->
+      <div class="flex space-x-4 overflow-x-auto pb-4 border-b border-neutral-900 scrollbar-none">
+        <!-- Add Story -->
         <label class="flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer">
-          <div class="relative w-14 h-14 rounded-full p-[2px] bg-neutral-800 border-2 border-dashed border-yellow-400 flex items-center justify-center">
+          <div class="relative w-16 h-16 rounded-full p-[2px] bg-neutral-800 border-2 border-dashed border-yellow-400 flex items-center justify-center">
             <img id="myStoryAvatar" src="https://via.placeholder.com/150" class="w-full h-full rounded-full object-cover">
-            <div class="absolute bottom-0 right-0 bg-yellow-400 text-black text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">+</div>
+            <div class="absolute bottom-0 right-0 bg-blue-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-black">+</div>
           </div>
-          <span class="text-[10px] text-neutral-400">Add Story</span>
+          <span class="text-[11px] text-neutral-400">Your story</span>
           <input type="file" accept="image/*,video/*" class="hidden" onchange="uploadStory(event)">
         </label>
 
-        <div id="storiesContainer" class="flex space-x-3"></div>
+        <div id="storiesContainer" class="flex space-x-4"></div>
       </div>
 
       <!-- FEED POSTS -->
-      <div id="feedPostsContainer" class="space-y-6"></div>
+      <div id="feedPostsContainer"></div>
     </main>
 
-    <!-- RIGHT SIDEBAR (Desktop) -->
-    <aside class="hidden lg:flex w-80 fixed top-0 right-0 h-screen border-l border-neutral-800 p-4 flex-col gap-5 z-40 bg-black overflow-y-auto">
+    <!-- RIGHT SIDEBAR (Instagram Style) -->
+    <aside class="hidden lg:block w-80 fixed top-6 right-12 p-4 text-xs space-y-5">
       
-      <!-- BRAND / EXPLORE HEADER -->
-      <div class="flex items-center space-x-2 text-yellow-400 font-bold text-sm">
-        <i class="fa-solid fa-fire"></i>
-        <span>Explore PulseIn</span>
+      <!-- CURRENT USER PROFILE -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <img id="rightUserAvatar" src="https://via.placeholder.com/150" class="w-12 h-12 rounded-full object-cover">
+          <div>
+            <p id="rightUserHandle" class="font-bold text-white">username</p>
+            <p id="rightUserName" class="text-neutral-400">User Full Name</p>
+          </div>
+        </div>
+        <button class="text-blue-500 hover:text-white font-bold">Switch</button>
       </div>
 
-      <!-- SUGGESTIONS WIDGET -->
-      <div class="bg-[#121212] border border-neutral-800 rounded-2xl p-4 space-y-3">
-        <h3 class="text-xs font-bold text-neutral-400">Who to follow</h3>
-        
+      <!-- SUGGESTIONS HEADER -->
+      <div class="flex items-center justify-between font-bold">
+        <span class="text-neutral-400">Suggested for you</span>
+        <button class="text-white hover:text-neutral-400">See all</button>
+      </div>
+
+      <!-- SUGGESTIONS LIST -->
+      <div class="space-y-3">
         <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <img src="https://via.placeholder.com/40" class="w-8 h-8 rounded-full object-cover">
+          <div class="flex items-center space-x-3">
+            <img src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full">
             <div>
-              <p class="text-xs font-bold text-white">Alex Rivera</p>
-              <p class="text-[10px] text-neutral-400">@arivera</p>
+              <p class="font-bold text-white">newpokemoncollecter1</p>
+              <p class="text-neutral-500 text-[10px]">Followed by md_obaidul_7</p>
             </div>
           </div>
-          <button class="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-xl hover:bg-yellow-300">Follow</button>
+          <button class="text-blue-500 hover:text-white font-bold">Follow</button>
         </div>
 
         <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <img src="https://via.placeholder.com/40" class="w-8 h-8 rounded-full object-cover">
+          <div class="flex items-center space-x-3">
+            <img src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full">
             <div>
-              <p class="text-xs font-bold text-white">Sarah Chen</p>
-              <p class="text-[10px] text-neutral-400">@schen</p>
+              <p class="font-bold text-white">Tyrese Lowe</p>
+              <p class="text-neutral-500 text-[10px]">Followed by supernova.rift +</p>
             </div>
           </div>
-          <button class="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-xl hover:bg-yellow-300">Follow</button>
-        </div>
-      </div>
-
-      <!-- REALTIME CHAT BOX WIDGET -->
-      <div class="bg-[#121212] border border-neutral-800 rounded-2xl p-4 flex flex-col h-80 justify-between">
-        <div class="flex items-center justify-between border-b border-neutral-800 pb-2">
-          <h3 class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-comments"></i> Live Chat
-          </h3>
-          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          <button class="text-blue-500 hover:text-white font-bold">Follow</button>
         </div>
 
-        <div id="chatBox" class="flex-1 overflow-y-auto space-y-2 py-2 my-2 flex flex-col">
-          <div class="bg-neutral-900 text-slate-300 text-xs p-2 rounded-lg max-w-[80%] self-start">
-            Welcome to PulseIn live chat!
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <img src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full">
+            <div>
+              <p class="font-bold text-white">Paris Olivia maxwell</p>
+              <p class="text-neutral-500 text-[10px]">Suggested for you</p>
+            </div>
           </div>
-        </div>
-
-        <div class="flex items-center gap-1.5 border-t border-neutral-800 pt-2">
-          <input type="text" id="chatInput" placeholder="Type message..." class="flex-1 bg-neutral-900 border border-neutral-800 text-xs text-white rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-yellow-400">
-          <button onclick="sendLiveChat()" class="bg-yellow-400 text-black px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-yellow-300">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
+          <button class="text-blue-500 hover:text-white font-bold">Follow</button>
         </div>
       </div>
 
+      <!-- FOOTER LINKS -->
+      <div class="text-[11px] text-neutral-500 leading-relaxed pt-4 space-y-2">
+        <p>About • Help • Press • API • Jobs • Privacy • Terms • Locations • Language</p>
+        <p class="uppercase">© 2026 PulseIn FROM META</p>
+      </div>
     </aside>
 
   </div>
 
-  <!-- MOBILE NAVIGATION -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-black/95 border-t border-neutral-800 flex justify-around p-3 z-50 text-slate-400 text-lg">
-    <a href="index.html" class="text-yellow-400"><i class="fa-solid fa-house"></i></a>
-    <a href="upload-reel.html"><i class="fa-solid fa-clapperboard"></i></a>
-    <button onclick="openCreatePostModal()"><i class="fa-regular fa-square-plus text-yellow-400 text-xl"></i></button>
-    <a href="messages.html"><i class="fa-regular fa-paper-plane"></i></a>
-    <a href="profile.html"><i class="fa-regular fa-user"></i></a>
-  </nav>
+  <!-- FLOATING MESSAGES BUTTON (Bottom Right - like Instagram) -->
+  <a href="messages.html" class="hidden md:flex fixed bottom-4 right-6 bg-[#121212] border border-neutral-800 px-4 py-2.5 rounded-2xl items-center space-x-3 shadow-xl hover:bg-neutral-900 transition z-50">
+    <div class="relative">
+      <i class="fa-regular fa-paper-plane text-white text-base"></i>
+      <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full">6</span>
+    </div>
+    <span class="text-xs font-bold text-white">Messages</span>
+  </a>
 
   <!-- CREATE POST MODAL -->
   <div id="createPostModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
     <div class="bg-[#121212] border border-neutral-800 rounded-2xl w-full max-w-md p-5 space-y-4">
       <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-        <h3 class="text-xs font-bold text-white">Create Post with Photo & Music</h3>
+        <h3 class="text-xs font-bold text-white">Create New Post</h3>
         <button onclick="closeCreatePostModal()" class="text-neutral-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
       <textarea id="postInputText" rows="3" placeholder="Write caption..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-400 resize-none"></textarea>
-
-      <!-- Music Select -->
-      <div class="bg-neutral-900 p-2.5 rounded-xl border border-neutral-800 space-y-1">
-        <label class="text-[10px] font-bold text-yellow-400 block"><i class="fa-solid fa-music"></i> Select World Songs:</label>
-        <select id="postSongSelect" class="w-full bg-black border border-neutral-700 text-xs rounded-lg p-2 text-slate-200 focus:outline-none">
-          <option value="">No Music</option>
-          <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">🎵 Global Pop Hits 2026</option>
-          <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">🎵 Electronic Dance Beats</option>
-          <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">🎵 Lo-Fi Chill Instrumental</option>
-        </select>
-      </div>
-
-      <div id="mediaPreviewHolder"></div>
 
       <div class="flex items-center justify-between pt-2 border-t border-neutral-800">
         <label class="cursor-pointer text-xs text-yellow-400 flex items-center space-x-1.5">
@@ -529,7 +400,7 @@
           <span>Add Photo/Video</span>
           <input type="file" accept="image/*,video/*" onchange="previewPostMedia(event)" class="hidden">
         </label>
-        <button onclick="publishPost()" class="bg-yellow-400 text-black font-bold px-5 py-1.5 rounded-xl text-xs hover:bg-yellow-300">Publish</button>
+        <button onclick="publishPost()" class="bg-blue-500 text-white font-bold px-5 py-1.5 rounded-xl text-xs hover:bg-blue-600">Share</button>
       </div>
     </div>
   </div>

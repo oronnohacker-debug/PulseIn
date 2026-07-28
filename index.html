@@ -11,6 +11,31 @@
     ::-webkit-scrollbar-track { background: #000; }
     ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
   </style>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCPjBq74KCEgeO4MK6EZFjMuA3ju3s3Wpc",
+    authDomain: "echoo-325d4.firebaseapp.com",
+    projectId: "echoo-325d4",
+    storageBucket: "echoo-325d4.firebasestorage.app",
+    messagingSenderId: "694671555312",
+    appId: "1:694671555312:web:12b3bdf72ff02943eba035",
+    measurementId: "G-N8L551KYDP"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // চেক করবে ইউজার লগইন আছে কিনা
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // ইউজার লগইন না থাকলে লগইন পেজে রিডাইরেক্ট করবে
+      window.location.href = "login.html";
+    }
+  });
+</script>
 </head>
 <body class="bg-black text-slate-100 min-h-screen flex font-sans select-none relative">
 
